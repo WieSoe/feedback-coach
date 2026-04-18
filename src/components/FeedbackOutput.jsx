@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import '../styles/FeedbackOutput.css'
 
@@ -9,13 +10,37 @@ const FRAMEWORK_LABELS = {
   self: 'Self-Clarification',
 }
 
-export default function FeedbackOutput({ data }) {
+export default function FeedbackOutput({ data, chatHistory, chatLoading, onFollowUp }) {
   const isSelf = data.framework === 'self'
   const frameworkLabel = FRAMEWORK_LABELS[data.framework] ?? data.framework
+  const [input, setInput] = useState('')
+  const messagesEndRef = useRef(null)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [chatHistory])
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(data.generatedFeedback)
     alert('Copied to clipboard!')
+  }
+
+  const handleSend = (e) => {
+    e.preventDefault()
+    if (!input.trim() || chatLoading) return
+    onFollowUp(input.trim())
+    setInput('')
+  }
+
+  const handleKeyDown = (e) => {
+    // Send on Enter (without shift) OR Cmd/Ctrl+Enter
+    const submitKey = (e.key === 'Enter' && !e.shiftKey) || (e.key === 'Enter' && (e.metaKey || e.ctrlKey))
+    if (submitKey) {
+      e.preventDefault()
+      if (!input.trim() || chatLoading) return
+      onFollowUp(input.trim())
+      setInput('')
+    }
   }
 
   return (
@@ -53,6 +78,50 @@ export default function FeedbackOutput({ data }) {
           <li>Focus on behavior, not person</li>
           <li>End with clear next steps</li>
         </ul>
+      </div>
+
+      <div className="chat-section" aria-label="Follow-up conversation">
+        <h3>🗨️ Refine or Practice</h3>
+
+        <div
+          className="chat-messages"
+          role="log"
+          aria-live="polite"
+          aria-label="Chat messages"
+        >
+          {chatHistory.map((msg, idx) => (
+            <div key={idx} className={`chat-bubble chat-bubble--${msg.role}`}>
+              <ReactMarkdown>{msg.content}</ReactMarkdown>
+            </div>
+          ))}
+          {chatLoading && (
+            <div className="chat-bubble chat-bubble--assistant chat-bubble--loading" aria-busy="true">
+              Thinking…
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <form className="chat-input-row" onSubmit={handleSend}>
+          <label htmlFor="chat-input" className="sr-only">Follow-up message</label>
+          <textarea
+            id="chat-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask a follow-up… e.g. 'What if they react defensively?' or 'Make it more direct'"
+            disabled={chatLoading}
+            className="chat-textarea"
+          />
+          <button
+            type="submit"
+            className="chat-send-btn"
+            aria-label="Send follow-up message"
+            disabled={chatLoading || !input.trim()}
+          >
+            Send
+          </button>
+        </form>
       </div>
     </div>
   )

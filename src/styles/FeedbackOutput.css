@@ -1,9 +1,7 @@
 .feedback-output h2 {
   margin-bottom: 20px;
   color: #111827;
-}
-
-.output-meta {
+}.output-meta {
   background: #f8fafc;
   padding: 16px;
   border-radius: 6px;
@@ -58,6 +56,36 @@
   border: none;
   border-top: 0.5px solid #e5e7eb;
   margin: 16px 0;
+}
+
+.markdown-output ul,
+.markdown-output ol {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  padding-left: 20px;
+}
+
+.markdown-output li {
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+
+.markdown-output li + li {
+  margin-top: 4px;
+}
+
+.markdown-output p + ul,
+.markdown-output p + ol {
+  margin-top: 4px;
+}
+
+.markdown-output h3 + ul,
+.markdown-output h3 + ol {
+  margin-top: 8px;
+}
+
+.markdown-output li strong {
+  display: inline;
 }
 
 .markdown-output table {
@@ -117,4 +145,96 @@
   color: #3498db;
   font-weight: bold;
   margin-right: 8px;
+}
+
+/* ── Follow-up chat ── */
+.chat-section {
+  margin-top: 24px;
+  border-top: 0.5px solid #e5e7eb;
+  padding-top: 20px;
+}
+
+.chat-section h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+}
+
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.chat-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-bubble--user {
+  align-self: flex-end;
+  background: #185FA5;
+  color: #ffffff;
+  border-radius: 12px 12px 0 12px;
+}
+
+.chat-bubble--assistant {
+  align-self: flex-start;
+  background: #f1f5f9;
+  color: #111827;
+  border-radius: 12px 12px 12px 0;
+}
+
+.chat-bubble--loading {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.chat-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-textarea {
+  width: 100%;
+  min-height: 80px;
+  font-size: 15px;
+  padding: 12px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.chat-send-btn {
+  padding: 0 20px;
+  min-height: 44px;
+  background: #185FA5;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.chat-send-btn:hover:not(:disabled) {
+  background: #145291;
+}
+
+.chat-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
