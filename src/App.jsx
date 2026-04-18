@@ -90,6 +90,20 @@ export default function App() {
 }
 
 function generatePrompt(formData) {
+  if (formData.framework === 'self') {
+    return `You are an empathetic NVC coach. The user is frustrated and trying to understand their own reaction before having a difficult conversation.
+
+Their input: ${formData.description}
+
+Your task:
+1. Reflect back what you heard WITHOUT judgment
+2. Identify 2-3 possible FEELINGS behind their reaction (from NVC feelings inventory)
+3. Identify 2-3 possible unmet NEEDS (from NVC needs inventory, e.g. respect, clarity, collaboration, autonomy, recognition)
+4. Suggest one gentle opening sentence they could use in a conversation, starting from their need — NOT from blame
+
+Be warm, non-judgmental, and concise.`
+  }
+
   return `You are an experienced executive coach specializing in difficult conversations and feedback.
 
 A user wants to prepare feedback using the "${formData.framework}" framework.

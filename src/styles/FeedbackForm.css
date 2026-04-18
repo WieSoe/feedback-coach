@@ -1,0 +1,95 @@
+.feedback-form h2 {
+  margin-bottom: 24px;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group small {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.framework-description {
+  background: #E6F1FB;
+  border-left: 3px solid #185FA5;
+  padding: 12px;
+  border-radius: 0 4px 4px 0;
+  font-size: 14px;
+  color: #0C447C;
+  line-height: 1.5;
+}
+
+.framework-author {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.self-hint {
+  font-size: 14px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.self-intro-box {
+  background: #E6F1FB;
+  border-left: 3px solid #185FA5;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #0C447C;
+  line-height: 1.6;
+}
+
+.needs-hint {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.framework-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  padding: 8px 16px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 0.5px solid #e5e7eb;
+  background: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.pill:hover {
+  border-color: #185FA5;
+  color: #185FA5;
+  box-shadow: none;
+  transform: none;
+}
+
+.pill:focus-visible {
+  outline: 2px solid #185FA5;
+  outline-offset: 2px;
+}
+
+.pill-active {
+  background: #E6F1FB;
+  border-color: #185FA5;
+  color: #0C447C;
+}

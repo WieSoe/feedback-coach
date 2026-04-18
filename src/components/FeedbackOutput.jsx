@@ -1,6 +1,18 @@
+import ReactMarkdown from 'react-markdown'
 import '../styles/FeedbackOutput.css'
 
+const FRAMEWORK_LABELS = {
+  sbi: 'SBI — Situation, Behavior, Impact',
+  nvc: 'NVC — Nonviolent Communication',
+  asset: 'Asset-oriented Feedback',
+  radical: 'Radical Candor',
+  self: 'Self-Clarification',
+}
+
 export default function FeedbackOutput({ data }) {
+  const isSelf = data.framework === 'self'
+  const frameworkLabel = FRAMEWORK_LABELS[data.framework] ?? data.framework
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(data.generatedFeedback)
     alert('Copied to clipboard!')
@@ -11,16 +23,18 @@ export default function FeedbackOutput({ data }) {
       <h2>💡 Your Feedback Preparation</h2>
 
       <div className="output-meta">
-        <p><strong>Framework:</strong> {data.framework.toUpperCase()}</p>
-        <p><strong>For:</strong> {data.recipient}</p>
+        <p><strong>Framework:</strong> {frameworkLabel}</p>
+        {isSelf ? (
+          <p><strong>For:</strong> Myself</p>
+        ) : (
+          <p><strong>For:</strong> {data.recipient}</p>
+        )}
         <p><strong>Topic:</strong> {data.topic}</p>
       </div>
 
       <div className="output-content">
         <div className="markdown-output">
-          {data.generatedFeedback.split('\n').map((line, idx) => (
-            <p key={idx}>{line || <br />}</p>
-          ))}
+          <ReactMarkdown>{data.generatedFeedback}</ReactMarkdown>
         </div>
       </div>
 
