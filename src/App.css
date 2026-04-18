@@ -142,3 +142,12 @@ button.primary:disabled {
 .app-footer p + p {
   margin-top: 6px;
 }
+
+.app-footer-link {
+  color: #185FA5;
+  text-decoration: none;
+}
+
+.app-footer-link:hover {
+  text-decoration: underline;
+}

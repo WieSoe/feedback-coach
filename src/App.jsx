@@ -146,6 +146,16 @@ export default function App() {
         <p>Built by Wiebke Söhrens</p>
         <p>© 2026 · Use it freely, don't change it, credit me · CC BY-ND 4.0</p>
         <p>This app uses Vercel Analytics to count page visits — no cookies, no personal data.</p>
+        <p>
+          <a
+            className="app-footer-link"
+            href="https://github.com/WieSoe/feedback-coach"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Source on GitHub
+          </a>
+        </p>
       </footer>
     </div>
   )
