@@ -50,6 +50,12 @@
   line-height: 1.6;
 }
 
+.char-counter {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
 .needs-hint {
   font-size: 13px;
   color: #6b7280;

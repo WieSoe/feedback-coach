@@ -141,6 +141,11 @@ export default function App() {
           )}
         </div>
       )}
+
+      <footer className="app-footer">
+        <p>Built by Wiebke Söhrens</p>
+        <p>© 2026 · Use it freely, don't change it, credit me · CC BY-ND 4.0</p>
+      </footer>
     </div>
   )
 }

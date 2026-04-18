@@ -135,6 +135,7 @@ export default function FeedbackForm({ onSubmit, loading }) {
                 name="recipient"
                 value={formData.recipient}
                 onChange={handleChange}
+                maxLength={500}
                 placeholder="e.g., John (my report), Team lead, VP Engineering"
                 autoComplete="off"
               />
@@ -150,6 +151,7 @@ export default function FeedbackForm({ onSubmit, loading }) {
             name="topic"
             value={formData.topic}
             onChange={handleChange}
+            maxLength={500}
             placeholder={isSelf ? 'e.g., A colleague interrupted me, I felt dismissed in a meeting...' : 'e.g., Code quality, Communication, Deadline missed'}
             autoComplete="off"
           />
@@ -162,8 +164,10 @@ export default function FeedbackForm({ onSubmit, loading }) {
             name="description"
             value={formData.description}
             onChange={handleChange}
+            maxLength={2000}
             placeholder={isSelf ? "Write freely. No judgment here. You can even say 'he's being an asshole' — we'll help you find what's really going on." : 'Describe the situation, behavior, or concern. Be specific and factual.'}
           />
+          <p className="char-counter">{formData.description.length} / 2000 characters</p>
         </div>
 
         <button type="submit" className="primary" disabled={loading}>

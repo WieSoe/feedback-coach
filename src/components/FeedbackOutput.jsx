@@ -109,6 +109,7 @@ export default function FeedbackOutput({ data, chatHistory, chatLoading, onFollo
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            maxLength={2000}
             placeholder="Ask a follow-up… e.g. 'What if they react defensively?' or 'Make it more direct'"
             disabled={chatLoading}
             className="chat-textarea"

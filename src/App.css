@@ -128,3 +128,17 @@ button.primary:disabled {
   border-radius: 6px;
   margin-bottom: 20px;
 }
+
+.app-footer {
+  text-align: left;
+  font-size: 13px;
+  color: var(--color-text-secondary, #6b7280);
+  padding-top: 40px;
+  padding-bottom: 24px;
+  border-top: 0.5px solid #e5e7eb;
+  margin-top: 40px;
+}
+
+.app-footer p + p {
+  margin-top: 6px;
+}
