@@ -27,9 +27,11 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: JSON.stringify({
-          model: 'claude-3-5-sonnet-20241022',
+          model: 'claude-sonnet-4-5',
           max_tokens: 1500,
           messages: [
             {
@@ -41,7 +43,11 @@ export default function App() {
       })
 
       if (!response.ok) {
-        throw new Error(`API Error: ${response.statusText}`)
+        const errorBody = await response.text()
+        const apiError = new Error(`API Error ${response.status}: ${response.statusText}`)
+        apiError.status = response.status
+        apiError.body = errorBody
+        throw apiError
       }
 
       const data = await response.json()
@@ -52,7 +58,13 @@ export default function App() {
         generatedFeedback: content,
       })
     } catch (error) {
-      alert(`Error: ${error.message}`)
+      console.error('Anthropic API request failed:', error)
+
+      if (error.status) {
+        alert(`Error ${error.status}: ${error.body || error.message}`)
+      } else {
+        alert(`Error: ${error.message}`)
+      }
     } finally {
       setLoading(false)
     }
