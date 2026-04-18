@@ -28,6 +28,7 @@ export default function ApiKeySetup({ onSubmit }) {
               type={showKey ? 'text' : 'password'}
               value={key}
               onChange={(e) => setKey(e.target.value)}
+              maxLength={500}
               placeholder="sk-ant-..."
             />
             <button
@@ -44,6 +45,9 @@ export default function ApiKeySetup({ onSubmit }) {
               Get one here
             </a>
           </small>
+          <p className="api-key-warning">
+            Your key is stored locally. Avoid using on shared or public computers.
+          </p>
         </div>
 
         <button type="submit" className="primary">
