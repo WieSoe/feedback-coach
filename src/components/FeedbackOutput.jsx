@@ -24,8 +24,18 @@ export default function FeedbackOutput({
   const isManagerReport = data.situationType === 'Feedback about someone to their Manager'
   const isArabic = selectedLanguage === 'العربية'
   const frameworkLabel = FRAMEWORK_LABELS[data.framework] ?? data.framework
+  const isWritten = data.outputFormat === 'written'
   const [input, setInput] = useState('')
+  const [editableText, setEditableText] = useState(data.generatedFeedback)
   const messagesEndRef = useRef(null)
+  const textareaRef = useRef(null)
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px'
+    }
+  }, [editableText])
 
   const extractTrailingNote = (content) => {
     if (typeof content !== 'string') {
@@ -67,7 +77,8 @@ export default function FeedbackOutput({
   }, [chatHistory])
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(data.generatedFeedback)
+    const text = isWritten ? editableText : data.generatedFeedback
+    navigator.clipboard.writeText(text)
     alert('Copied to clipboard!')
   }
 
@@ -116,23 +127,37 @@ export default function FeedbackOutput({
         dir={isArabic ? 'rtl' : 'ltr'}
         style={{ textAlign: isArabic ? 'right' : 'left' }}
       >
-        <div className="markdown-output">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{mainFeedback || data.generatedFeedback}</ReactMarkdown>
-          {trailingNote && (
-            <div className="output-warning-box">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{trailingNote}</ReactMarkdown>
-            </div>
-          )}
-        </div>
+        {isWritten ? (
+          <textarea
+            ref={textareaRef}
+            className="written-output-textarea"
+            value={editableText}
+            onChange={(e) => setEditableText(e.target.value)}
+          />
+        ) : (
+          <div className="markdown-output">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{mainFeedback || data.generatedFeedback}</ReactMarkdown>
+            {trailingNote && (
+              <div className="output-warning-box">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{trailingNote}</ReactMarkdown>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="output-actions">
         <button className="primary" onClick={copyToClipboard}>
           <Copy style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Copy to Clipboard
         </button>
+        {isWritten && (
+          <button className="primary" onClick={() => onReset && onReset('regenerate')} style={{ marginLeft: '8px' }}>
+            <RotateCcw style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Regenerate
+          </button>
+        )}
       </div>
 
-      {!isManagerReport && (
+      {!isManagerReport && !isWritten && (
         <div className="tips-box">
           <h4><MessageSquare style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Tips for the Conversation</h4>
           <ul>
@@ -145,6 +170,7 @@ export default function FeedbackOutput({
         </div>
       )}
 
+      {!isWritten && (
       <div className="chat-section" aria-label="Follow-up conversation">
         <h3>🗨️ Refine or Practice</h3>
 
@@ -205,6 +231,7 @@ export default function FeedbackOutput({
           </button>
         </form>
       </div>
+      )}
     </div>
   )
 }

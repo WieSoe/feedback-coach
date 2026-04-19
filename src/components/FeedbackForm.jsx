@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PenLine, Zap, Sparkles, Loader2 } from 'lucide-react'
+import { PenLine, Zap, Sparkles, Loader2, MessageSquare } from 'lucide-react'
 import '../styles/FeedbackForm.css'
 
 const FRAMEWORKS = [
@@ -66,6 +66,8 @@ export default function FeedbackForm({
   selectedLanguage,
   onLanguageChange,
   onNeutralize,
+  onOutputFormatChange,
+  onFrameworkChange,
 }) {
   const [formData, setFormData] = useState({
     framework: 'sbi',
@@ -74,6 +76,7 @@ export default function FeedbackForm({
     topic: '',
     description: '',
     unmetNeed: '',
+    outputFormat: 'conversation',
   })
   const [neutralized, setNeutralized] = useState(null)
   const [neutralizingLoading, setNeutralizingLoading] = useState(false)
@@ -189,13 +192,17 @@ export default function FeedbackForm({
       setNeutralized(null)
       setNeutralizeError(null)
       onSubmit(formData)
+    } else {
+      if (!recipientOk) alert('Please enter a recipient.')
+      else if (!formData.topic.trim()) alert('Please enter a topic.')
+      else if (!formData.description.trim()) alert('Please describe what happened.')
     }
   }
 
   return (
     <div className="feedback-form card">
       <h2 className="feedback-form-title">
-        <PenLine width={28} height={28} />
+        <PenLine width={20} height={20} style={{ flexShrink: 0 }} />
         <span>Prepare Your Feedback</span>
       </h2>
 
@@ -218,6 +225,48 @@ export default function FeedbackForm({
           <p id="output-language-hint" className="output-language-hint">You can write your input in any language.</p>
         </div>
 
+        <div className="form-group">
+          <label id="output-format-label">What do you need?</label>
+          <div className="output-format-pills" role="group" aria-labelledby="output-format-label">
+            <button
+              type="button"
+              className={`output-format-pill${formData.outputFormat === 'conversation' ? ' output-format-pill--active' : ''}`}
+              aria-pressed={formData.outputFormat === 'conversation'}
+              onClick={() => {
+                setFormData((prev) => ({ ...prev, outputFormat: 'conversation' }))
+                setDefuseSkipped(false)
+                setDefuseCompleted(false)
+                setNeutralized(null)
+                onOutputFormatChange?.('conversation')
+              }}
+            >
+              <span className="output-format-pill-main">
+                <MessageSquare size={14} className="output-format-pill-icon" />
+                Conversation guide
+              </span>
+              <span className="output-format-pill-sub">I'll talk to them directly</span>
+            </button>
+            <button
+              type="button"
+              className={`output-format-pill${formData.outputFormat === 'written' ? ' output-format-pill--active' : ''}`}
+              aria-pressed={formData.outputFormat === 'written'}
+              onClick={() => {
+                setFormData((prev) => ({ ...prev, outputFormat: 'written' }))
+                setDefuseSkipped(false)
+                setDefuseCompleted(false)
+                setNeutralized(null)
+                onOutputFormatChange?.('written')
+              }}
+            >
+              <span className="output-format-pill-main">
+                <PenLine size={14} className="output-format-pill-icon" />
+                Written feedback
+              </span>
+              <span className="output-format-pill-sub">Email, Slack, review, or any written form</span>
+            </button>
+          </div>
+        </div>
+
         {isManagerAboutSomeone ? (
           <div className="self-intro-box">
             This type of feedback requires factual, neutral observations.
@@ -238,7 +287,10 @@ export default function FeedbackForm({
                   aria-label={`${fw.name}: ${fw.description}`}
                   aria-pressed={formData.framework === fw.id}
                   className={`pill${formData.framework === fw.id ? ' pill-active' : ''}`}
-                  onClick={() => setFormData((prev) => ({ ...prev, framework: fw.id }))}
+                  onClick={() => {
+                    setFormData((prev) => ({ ...prev, framework: fw.id }))
+                    onFrameworkChange?.(fw.id)
+                  }}
                 >
                   {fw.name}
                 </button>
@@ -354,7 +406,7 @@ export default function FeedbackForm({
                 ) : (
                   <>
                     <Zap style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
-                    Defuse my words
+                    Defuse my language
                   </>
                 )}
               </button>
