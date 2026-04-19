@@ -4,6 +4,8 @@
 ![Live](https://img.shields.io/badge/live-vercel-brightgreen)
 ![License](https://img.shields.io/badge/license-CC%20BY--ND%204.0-lightgrey)
 
+## [Try the live demo — no API key required](https://feedback-coach-beta.vercel.app)
+
 Prepare difficult conversations with confidence — 
 as a structured talk or as written feedback, ready to send.
 
