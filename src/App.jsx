@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { MessageSquare } from 'lucide-react'
+import { MessageSquare, KeyRound } from 'lucide-react'
 import { Analytics } from '@vercel/analytics/react'
 import FeedbackForm from './components/FeedbackForm'
 import FeedbackOutput from './components/FeedbackOutput'
 import FeedbackHistory from './components/FeedbackHistory'
 import ApiKeySetup from './components/ApiKeySetup'
+import { DEMO_EXAMPLES, DEMO_FORM_DEFAULT } from './data/demoData'
 import './App.css'
 
 // Add a ref to track if neutralize is in progress
@@ -89,6 +90,7 @@ const DEFAULT_FORM_DATA = {
 
 export default function App() {
   const [apiKey, setApiKey] = useState(loadApiKey)
+  const [demoMode, setDemoMode] = useState(false)
   const [feedbackData, setFeedbackData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [chatHistory, setChatHistory] = useState([])
@@ -102,10 +104,38 @@ export default function App() {
     const saved = localStorage.getItem(OUTPUT_LANGUAGE_STORAGE_KEY)
     return sanitizeOutputLanguage(saved || detectBrowserLanguage())
   })
+  const isOnboarding = !apiKey && !demoMode
 
   const handleApiKeySubmit = (key) => {
     setApiKey(key)
     localStorage.setItem(API_KEY_STORAGE_KEY, key)
+  }
+
+  const handleDemoMode = () => {
+    setDemoMode(true)
+    setFormInitialData(DEMO_FORM_DEFAULT)
+    setFeedbackData(null)
+    setChatHistory([])
+    setTimeout(() => {
+      document.querySelector('.demo-banner-heading')?.focus()
+    }, 0)
+  }
+
+  const handleExitDemoMode = () => {
+    setDemoMode(false)
+    setFeedbackData(null)
+    setChatHistory([])
+    setFormInitialData(null)
+    setTimeout(() => {
+      const apiKeyInput = document.querySelector('#api-key')
+
+      if (apiKeyInput) {
+        apiKeyInput.focus()
+        return
+      }
+
+      document.querySelector('.api-setup-heading')?.focus()
+    }, 0)
   }
 
   const handleTogglePrivacyMode = () => {
@@ -120,6 +150,21 @@ export default function App() {
   }
 
   const handleGenerateFeedback = async (formData) => {
+    // Handle demo mode
+    if (demoMode) {
+      const demoKey = `${formData.framework}_${formData.outputFormat}`
+      const demoContent = DEMO_EXAMPLES[demoKey]
+      
+      if (demoContent) {
+        setFeedbackData({
+          ...demoContent,
+          outputFormat: formData.outputFormat || 'conversation',
+        })
+        setChatHistory([])
+      }
+      return
+    }
+
     if (!apiKey) {
       alert('Please set your API key first')
       return
@@ -513,7 +558,7 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
   }
 
   return (
-    <div className="app">
+    <div className={`app ${isOnboarding ? 'app-onboarding' : ''}`}>
       <header className="app-header card">
         <h1 className="app-header-title">
           <MessageSquare width={28} height={28} />
@@ -522,21 +567,70 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
         <p>Prepare difficult conversations with confidence</p>
       </header>
 
-      {!apiKey ? (
-        <ApiKeySetup onSubmit={handleApiKeySubmit} />
+      {demoMode && (
+        <div style={{
+          marginBottom: '16px',
+          padding: '12px 16px',
+          background: '#fef3c7',
+          border: '0.5px solid #d97706',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px'
+        }}>
+          <div>
+            <h2
+              className="demo-banner-heading"
+              tabIndex={-1}
+              style={{ margin: 0, fontSize: '14px', color: '#92400e' }}
+            >
+              Demo Mode
+            </h2>
+            <p style={{ margin: 0, fontSize: '14px', color: '#92400e' }}>
+              You're viewing example outputs. Add your API key to generate your own.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleExitDemoMode}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: '#185FA5',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '6px 12px',
+              fontSize: '13px',
+              whiteSpace: 'nowrap',
+              cursor: 'pointer'
+            }}
+          >
+            <KeyRound size={14} />
+            <span>Add your API key →</span>
+          </button>
+        </div>
+      )}
+
+      {isOnboarding ? (
+        <ApiKeySetup onSubmit={handleApiKeySubmit} onDemoMode={handleDemoMode} />
       ) : (
         <div className="app-container">
           <div className="left-column">
-            <FeedbackHistory
-              entries={feedbackHistory}
-              isOpen={historyOpen}
-              privacyMode={privacyMode}
-              onToggle={() => setHistoryOpen((prev) => !prev)}
-              onTogglePrivacyMode={handleTogglePrivacyMode}
-              onLoad={handleLoadHistoryEntry}
-              onDelete={handleDeleteHistoryEntry}
-              onClearAll={handleClearHistory}
-            />
+            {!demoMode && (
+              <FeedbackHistory
+                entries={feedbackHistory}
+                isOpen={historyOpen}
+                privacyMode={privacyMode}
+                onToggle={() => setHistoryOpen((prev) => !prev)}
+                onTogglePrivacyMode={handleTogglePrivacyMode}
+                onLoad={handleLoadHistoryEntry}
+                onDelete={handleDeleteHistoryEntry}
+                onClearAll={handleClearHistory}
+              />
+            )}
             <FeedbackForm
               onSubmit={handleGenerateFeedback}
               loading={loading}
@@ -552,6 +646,7 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
               onNeutralize={handleNeutralize}
               onOutputFormatChange={handleOutputFormatChange}
               onFrameworkChange={handleFrameworkChange}
+              isDemoMode={demoMode}
             />
           </div>
           {feedbackData && (
@@ -563,14 +658,15 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
               onReset={handleReset}
               selectedLanguage={selectedLanguage}
               advancedMode={advancedMode}
+              isDemoMode={demoMode}
             />
           )}
         </div>
       )}
 
+      <Analytics />
       <footer className="app-footer">
-        <p>Built by Wiebke Söhrens</p>
-        <p>© 2026 · Use it freely, don't change it, credit me · CC BY-ND 4.0</p>
+        <p>Built by Wiebke Söhrens · © 2026 · Use it freely, don't change it, credit me · CC BY-ND 4.0</p>
         <p>This app uses Vercel Analytics to count page visits — no cookies, no personal data.</p>
         <p>
           <a
@@ -581,8 +677,7 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
           >
             Source on GitHub
           </a>
-        </p>
-        <p>
+          {' · '}
           <a
             className="app-footer-link"
             href="https://buymeacoffee.com/wiesoe"
@@ -593,7 +688,6 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
           </a>
         </p>
       </footer>
-      <Analytics />
     </div>
   )
 }
