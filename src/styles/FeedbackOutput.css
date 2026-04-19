@@ -74,6 +74,19 @@
   line-height: 1.7;
 }
 
+.output-warning-box {
+  background: #fefce8;
+  border-left: 3px solid #eab308;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+.output-warning-box p:last-child {
+  margin-bottom: 0;
+}
+
 .markdown-output strong {
   font-weight: 500;
   color: #1a1a1a;

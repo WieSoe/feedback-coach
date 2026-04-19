@@ -79,9 +79,16 @@ export default function FeedbackForm({
   const [neutralizingLoading, setNeutralizingLoading] = useState(false)
   const [neutralizeError, setNeutralizeError] = useState(null)
   const [showNeutralizationExplanation, setShowNeutralizationExplanation] = useState(false)
+  const [showDefuseRecommendation, setShowDefuseRecommendation] = useState(true)
 
   const isSelf = formData.framework === 'self'
   const isManagerAboutSomeone = formData.situationType === 'Feedback about someone to their Manager'
+
+  useEffect(() => {
+    if (isManagerAboutSomeone) {
+      setShowDefuseRecommendation(true)
+    }
+  }, [isManagerAboutSomeone])
 
   useEffect(() => {
     if (!initialData) return
@@ -153,6 +160,8 @@ export default function FeedbackForm({
     e.preventDefault()
     const recipientOk = isSelf || formData.recipient.trim()
     if (recipientOk && formData.topic.trim() && formData.description.trim()) {
+      setNeutralized(null)
+      setNeutralizeError(null)
       onSubmit(formData)
     }
   }
@@ -186,8 +195,11 @@ export default function FeedbackForm({
         {isManagerAboutSomeone ? (
           <div className="self-intro-box">
             This type of feedback requires factual, neutral observations.
-            We'll help you structure what you've seen - without interpretation
+            We'll help you structure what you've seen — without interpretation
             or emotion. Stick to specific situations and behaviors.
+
+            We use the SBI framework (Situation, Behavior, Impact) for this type
+            of feedback — it's the most effective for factual, third-party reporting.
           </div>
         ) : (
           <div className="form-group">
@@ -291,11 +303,11 @@ export default function FeedbackForm({
             }
           />
           
-          {isManagerAboutSomeone && formData.description.length >= 10 && (
+          {isManagerAboutSomeone && (
             <>
               <button
                 type="button"
-                className="neutralize-button"
+                className={`neutralize-button${isManagerAboutSomeone ? ' neutralize-button-prominent' : ''}`}
                 onClick={handleNeutralizeClick}
                 disabled={neutralizingLoading}
               >
@@ -378,6 +390,21 @@ export default function FeedbackForm({
 
           <p className="char-counter">{formData.description.length} / 2000 characters</p>
         </div>
+
+        {isManagerAboutSomeone && showDefuseRecommendation && (
+          <div className="defuse-recommendation-note">
+            <p>
+              We recommend defusing your language before generating. This helps ensure your feedback is factual and neutral.
+            </p>
+            <button
+              type="button"
+              className="defuse-recommendation-skip"
+              onClick={() => setShowDefuseRecommendation(false)}
+            >
+              Skip
+            </button>
+          </div>
+        )}
 
           <button type="submit" className="primary" disabled={loading}>
             {loading ? '⏳ Generating...' : <><Sparkles style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Generate Feedback Preparation</>}

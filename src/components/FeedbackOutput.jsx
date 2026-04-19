@@ -21,10 +21,40 @@ export default function FeedbackOutput({
   selectedLanguage,
 }) {
   const isSelf = data.framework === 'self'
+  const isManagerReport = data.situationType === 'Feedback about someone to their Manager'
   const isArabic = selectedLanguage === 'العربية'
   const frameworkLabel = FRAMEWORK_LABELS[data.framework] ?? data.framework
   const [input, setInput] = useState('')
   const messagesEndRef = useRef(null)
+
+  const extractTrailingNote = (content) => {
+    if (typeof content !== 'string') {
+      return { main: '', note: '' }
+    }
+
+    const blocks = content
+      .split(/\n\s*\n/)
+      .map((block) => block.trim())
+      .filter(Boolean)
+
+    if (blocks.length === 0) {
+      return { main: content, note: '' }
+    }
+
+    const lastBlock = blocks[blocks.length - 1]
+    const notePattern = /^\s*(?:\*\*|__)?\s*(wichtiger\s+hinweis|hinweis|warning|note)\b/i
+
+    if (!notePattern.test(lastBlock)) {
+      return { main: content, note: '' }
+    }
+
+    return {
+      main: blocks.slice(0, -1).join('\n\n'),
+      note: lastBlock,
+    }
+  }
+
+  const { main: mainFeedback, note: trailingNote } = extractTrailingNote(data.generatedFeedback)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -63,7 +93,7 @@ export default function FeedbackOutput({
       >
           <RotateCcw style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Start new feedback
       </button>
-      <h2><Lightbulb style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px', width: '20px', height: '20px' }} /> Your Feedback Preparation</h2>
+      <h2><Lightbulb style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px', width: '24px', height: '24px', color: '#1a1a1a' }} /> Your Feedback Preparation</h2>
 
       <div className="output-meta">
         <p><strong>Framework:</strong> {frameworkLabel}</p>
@@ -81,7 +111,12 @@ export default function FeedbackOutput({
         style={{ textAlign: isArabic ? 'right' : 'left' }}
       >
         <div className="markdown-output">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.generatedFeedback}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{mainFeedback || data.generatedFeedback}</ReactMarkdown>
+          {trailingNote && (
+            <div className="output-warning-box">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{trailingNote}</ReactMarkdown>
+            </div>
+          )}
         </div>
       </div>
 
@@ -91,16 +126,18 @@ export default function FeedbackOutput({
         </button>
       </div>
 
-      <div className="tips-box">
-        <h4><MessageSquare style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Tips for the Conversation</h4>
-        <ul>
-          <li>Practice the opening line out loud</li>
-          <li>Listen more than you talk</li>
-          <li>Ask clarifying questions</li>
-          <li>Focus on behavior, not person</li>
-          <li>End with clear next steps</li>
-        </ul>
-      </div>
+      {!isManagerReport && (
+        <div className="tips-box">
+          <h4><MessageSquare style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Tips for the Conversation</h4>
+          <ul>
+            <li>Practice the opening line out loud</li>
+            <li>Listen more than you talk</li>
+            <li>Ask clarifying questions</li>
+            <li>Focus on behavior, not person</li>
+            <li>End with clear next steps</li>
+          </ul>
+        </div>
+      )}
 
       <div className="chat-section" aria-label="Follow-up conversation">
         <h3>🗨️ Refine or Practice</h3>
