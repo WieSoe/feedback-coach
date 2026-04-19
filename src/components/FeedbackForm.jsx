@@ -43,7 +43,26 @@ const SITUATION_TYPES = [
   'Feedback in a Private Setting',
 ]
 
-export default function FeedbackForm({ onSubmit, loading, initialData }) {
+const OUTPUT_LANGUAGES = [
+  'English',
+  'Deutsch',
+  'Español',
+  'Français',
+  'Italiano',
+  'Português',
+  'Nederlands',
+  'Polish',
+  '中文',
+  '日本語',
+]
+
+export default function FeedbackForm({
+  onSubmit,
+  loading,
+  initialData,
+  selectedLanguage,
+  onLanguageChange,
+}) {
   const [formData, setFormData] = useState({
     framework: 'sbi',
     situationType: 'Feedback to my Report',
@@ -193,6 +212,22 @@ export default function FeedbackForm({ onSubmit, loading, initialData }) {
             }
           />
           <p className="char-counter">{formData.description.length} / 2000 characters</p>
+        </div>
+
+        <div className="form-group output-language-group">
+          <label htmlFor="outputLanguage">Output language</label>
+          <select
+            id="outputLanguage"
+            name="outputLanguage"
+            value={selectedLanguage}
+            onChange={(e) => onLanguageChange(e.target.value)}
+          >
+            {OUTPUT_LANGUAGES.map((language) => (
+              <option key={language} value={language}>
+                {language}
+              </option>
+            ))}
+          </select>
         </div>
 
         <button type="submit" className="primary" disabled={loading}>

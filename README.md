@@ -24,6 +24,9 @@ A free tool for anybody who needs to give critical, constructive, or sensitive f
 I built this as an agile coach turned engineering manager.
 I got tired of rewriting the same prompts.
 
+## Feedback & Feature Requests
+Have an idea or found a bug? [Open an issue on GitHub](https://github.com/WieSoe/feedback-coach/issues) — I'd love to hear from you!
+
 ## Tech stack
 
 - React + Vite

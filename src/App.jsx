@@ -6,6 +6,19 @@ import ApiKeySetup from './components/ApiKeySetup'
 import './App.css'
 
 const HISTORY_STORAGE_KEY = 'feedback_history'
+const OUTPUT_LANGUAGE_STORAGE_KEY = 'feedback_output_language'
+
+const LANGUAGE_MAP = {
+  de: 'Deutsch',
+  es: 'Español',
+  fr: 'Français',
+  it: 'Italiano',
+  pt: 'Português',
+  nl: 'Nederlands',
+  pl: 'Polish',
+  zh: '中文',
+  ja: '日本語',
+}
 
 const loadHistory = () => {
   try {
@@ -20,6 +33,15 @@ const loadHistory = () => {
 
 const saveHistory = (history) => {
   localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history))
+}
+
+const detectBrowserLanguage = () => {
+  if (typeof navigator === 'undefined' || !navigator.language) {
+    return 'English'
+  }
+
+  const primary = navigator.language.toLowerCase().split('-')[0]
+  return LANGUAGE_MAP[primary] || 'English'
 }
 
 const DEFAULT_FORM_DATA = {
@@ -40,6 +62,10 @@ export default function App() {
   const [feedbackHistory, setFeedbackHistory] = useState(loadHistory)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [formInitialData, setFormInitialData] = useState(null)
+  const [selectedLanguage, setSelectedLanguage] = useState(() => {
+    const saved = localStorage.getItem(OUTPUT_LANGUAGE_STORAGE_KEY)
+    return saved || detectBrowserLanguage()
+  })
 
   const handleApiKeySubmit = (key) => {
     setApiKey(key)
@@ -68,7 +94,7 @@ export default function App() {
           messages: [
             {
               role: 'user',
-              content: generatePrompt(formData),
+              content: generatePrompt(formData, selectedLanguage),
             },
           ],
         }),
@@ -160,6 +186,11 @@ export default function App() {
     setFormInitialData({ ...DEFAULT_FORM_DATA })
   }
 
+  const handleLanguageChange = (language) => {
+    setSelectedLanguage(language)
+    localStorage.setItem(OUTPUT_LANGUAGE_STORAGE_KEY, language)
+  }
+
   const handleFollowUp = async (userMessage) => {
     if (!apiKey || !feedbackData) return
 
@@ -230,6 +261,8 @@ export default function App() {
               onSubmit={handleGenerateFeedback}
               loading={loading}
               initialData={formInitialData}
+              selectedLanguage={selectedLanguage}
+              onLanguageChange={handleLanguageChange}
             />
           </div>
           {feedbackData && (
@@ -273,7 +306,7 @@ export default function App() {
   )
 }
 
-function generatePrompt(formData) {
+function generatePrompt(formData, selectedLanguage) {
   if (formData.framework === 'self') {
     return `You are an empathetic NVC coach. The user is frustrated and trying to understand their own reaction before having a difficult conversation.
 
@@ -290,6 +323,8 @@ Do NOT invent, assume, or hallucinate specific details such as dates,
 times, names, frequencies, or situations that were not mentioned.
 If details are missing, use placeholders like [specific date] or
 [specific situation] instead.
+
+Please respond entirely in ${selectedLanguage}.
 
 Be warm, non-judgmental, and concise.`
   }
@@ -316,6 +351,8 @@ Do NOT invent, assume, or hallucinate specific details such as dates,
 times, names, frequencies, or situations that were not mentioned.
 If details are missing, use placeholders like [specific date] or
 [specific situation] instead.
+
+Please respond entirely in ${selectedLanguage}.
 
 Make it practical, empathetic, but honest. Keep it concise and actionable.`
 }

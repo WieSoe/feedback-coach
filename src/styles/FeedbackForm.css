@@ -99,3 +99,19 @@
   border-color: #185FA5;
   color: #0C447C;
 }
+
+.output-language-group {
+  gap: 6px;
+}
+
+.output-language-group label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.output-language-group select {
+  max-width: 220px;
+  min-height: 38px;
+  font-size: 14px;
+  padding: 8px 10px;
+}
