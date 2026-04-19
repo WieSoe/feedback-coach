@@ -3,6 +3,8 @@
 Prepare difficult conversations with confidence.
 A free tool for anybody who needs to give critical, constructive, or sensitive feedback, but aren't sure how.
 
+Try a demo first — no API key required. Once you're ready, add your API key to generate your own feedback preparation.
+
 ## How to use
 
 1. Open the app
@@ -21,10 +23,14 @@ A free tool for anybody who needs to give critical, constructive, or sensitive f
 
 ## Features
 
+- **Demo Mode** — explore the app with example outputs before entering your API key
 - **"Defuse my words"** — highlights loaded language in red, suggests neutral alternatives based on NVC principles
 - **Feedback History** — last 10 sessions saved in browser, quickly access previous work
 - **Follow-up chat** — refine and practice after generation
 - **Output in 10 languages** — auto-detected from browser language
+- **Privacy Mode** — prevent sessions from being saved to history
+- **Conversation Guide & Written Feedback** — choose your output format
+- **Advanced Mode** — unlock additional frameworks and tools for nuanced conversations
 - **Reset button** — start fresh without page reload
 
 ## Why this exists
