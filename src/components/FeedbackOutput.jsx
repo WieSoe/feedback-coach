@@ -11,8 +11,16 @@ const FRAMEWORK_LABELS = {
   self: 'Self-Clarification',
 }
 
-export default function FeedbackOutput({ data, chatHistory, chatLoading, onFollowUp, onReset }) {
+export default function FeedbackOutput({
+  data,
+  chatHistory,
+  chatLoading,
+  onFollowUp,
+  onReset,
+  selectedLanguage,
+}) {
   const isSelf = data.framework === 'self'
+  const isArabic = selectedLanguage === 'العربية'
   const frameworkLabel = FRAMEWORK_LABELS[data.framework] ?? data.framework
   const [input, setInput] = useState('')
   const messagesEndRef = useRef(null)
@@ -66,7 +74,11 @@ export default function FeedbackOutput({ data, chatHistory, chatLoading, onFollo
         <p><strong>Topic:</strong> {data.topic}</p>
       </div>
 
-      <div className="output-content">
+      <div
+        className="output-content"
+        dir={isArabic ? 'rtl' : 'ltr'}
+        style={{ textAlign: isArabic ? 'right' : 'left' }}
+      >
         <div className="markdown-output">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.generatedFeedback}</ReactMarkdown>
         </div>

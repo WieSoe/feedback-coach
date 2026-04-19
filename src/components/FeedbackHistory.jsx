@@ -4,8 +4,13 @@ const FRAMEWORK_SHORT = {
   sbi: 'SBI',
   nvc: 'NVC',
   asset: 'Asset',
-  radical: 'Radical',
+  radical: 'Candor',
   self: 'Self',
+}
+
+const formatHistoryDate = (value) => {
+  if (typeof value !== 'string') return value
+  return value.replace(/:(\d{2})(?!\d)/, '')
 }
 
 export default function FeedbackHistory({ entries, isOpen, onToggle, onLoad, onDelete, onClearAll }) {
@@ -17,7 +22,7 @@ export default function FeedbackHistory({ entries, isOpen, onToggle, onLoad, onD
         onClick={onToggle}
         aria-expanded={isOpen}
       >
-        {isOpen ? 'Hide history' : `Show history (${entries.length})`}
+        {isOpen ? `▾ History (${entries.length})` : `▸ History (${entries.length})`}
       </button>
 
       {isOpen && (
@@ -47,7 +52,7 @@ export default function FeedbackHistory({ entries, isOpen, onToggle, onLoad, onD
                     <div className="history-item-text">
                       <p className="history-recipient">{entry.recipient || 'Myself'}</p>
                       <p className="history-topic">{entry.topic}</p>
-                      <p className="history-date">{entry.date}</p>
+                      <p className="history-date">{formatHistoryDate(entry.date)}</p>
                     </div>
                   </div>
                   <button

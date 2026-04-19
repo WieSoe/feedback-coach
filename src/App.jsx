@@ -20,6 +20,24 @@ const LANGUAGE_MAP = {
   ja: '日本語',
 }
 
+const SUPPORTED_OUTPUT_LANGUAGES = [
+  'English',
+  'Deutsch',
+  'Español',
+  'Français',
+  'Italiano',
+  'Português',
+  'Nederlands',
+  'Polish',
+  '中文',
+  '日本語',
+]
+
+const sanitizeOutputLanguage = (language) => {
+  if (typeof language !== 'string') return 'English'
+  return SUPPORTED_OUTPUT_LANGUAGES.includes(language) ? language : 'English'
+}
+
 const loadHistory = () => {
   try {
     const raw = localStorage.getItem(HISTORY_STORAGE_KEY)
@@ -41,7 +59,7 @@ const detectBrowserLanguage = () => {
   }
 
   const primary = navigator.language.toLowerCase().split('-')[0]
-  return LANGUAGE_MAP[primary] || 'English'
+  return sanitizeOutputLanguage(LANGUAGE_MAP[primary] || 'English')
 }
 
 const DEFAULT_FORM_DATA = {
@@ -64,7 +82,7 @@ export default function App() {
   const [formInitialData, setFormInitialData] = useState(null)
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
     const saved = localStorage.getItem(OUTPUT_LANGUAGE_STORAGE_KEY)
-    return saved || detectBrowserLanguage()
+    return sanitizeOutputLanguage(saved || detectBrowserLanguage())
   })
 
   const handleApiKeySubmit = (key) => {
@@ -120,7 +138,13 @@ export default function App() {
       const now = Date.now()
       const historyEntry = {
         id: now,
-        date: new Date(now).toLocaleString(),
+        date: new Date(now).toLocaleString([], {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
         framework: formData.framework,
         recipient: formData.framework === 'self' ? 'Myself' : formData.recipient,
         topic: formData.topic,
@@ -187,8 +211,9 @@ export default function App() {
   }
 
   const handleLanguageChange = (language) => {
-    setSelectedLanguage(language)
-    localStorage.setItem(OUTPUT_LANGUAGE_STORAGE_KEY, language)
+    const safeLanguage = sanitizeOutputLanguage(language)
+    setSelectedLanguage(safeLanguage)
+    localStorage.setItem(OUTPUT_LANGUAGE_STORAGE_KEY, safeLanguage)
   }
 
   const handleFollowUp = async (userMessage) => {
@@ -307,6 +332,8 @@ export default function App() {
 }
 
 function generatePrompt(formData, selectedLanguage) {
+  const safeLanguage = sanitizeOutputLanguage(selectedLanguage)
+
   if (formData.framework === 'self') {
     return `You are an empathetic NVC coach. The user is frustrated and trying to understand their own reaction before having a difficult conversation.
 
@@ -324,7 +351,7 @@ times, names, frequencies, or situations that were not mentioned.
 If details are missing, use placeholders like [specific date] or
 [specific situation] instead.
 
-Please respond entirely in ${selectedLanguage}.
+Please respond entirely in ${safeLanguage}.
 
 Be warm, non-judgmental, and concise.`
   }
@@ -352,7 +379,7 @@ times, names, frequencies, or situations that were not mentioned.
 If details are missing, use placeholders like [specific date] or
 [specific situation] instead.
 
-Please respond entirely in ${selectedLanguage}.
+Please respond entirely in ${safeLanguage}.
 
 Make it practical, empathetic, but honest. Keep it concise and actionable.`
 }

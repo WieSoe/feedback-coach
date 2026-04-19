@@ -5,10 +5,26 @@
   font-weight: 600;
 }
 
+.feedback-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.feedback-form input,
+.feedback-form select,
+.feedback-form textarea {
+  width: 100%;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 15px;
 }
 
 .form-group small {
@@ -101,17 +117,11 @@
 }
 
 .output-language-group {
-  gap: 6px;
+  margin-bottom: 0;
 }
 
-.output-language-group label {
-  font-size: 13px;
+.output-language-hint {
+  margin-top: 2px;
+  font-size: 12px;
   color: #6b7280;
-}
-
-.output-language-group select {
-  max-width: 220px;
-  min-height: 38px;
-  font-size: 14px;
-  padding: 8px 10px;
 }

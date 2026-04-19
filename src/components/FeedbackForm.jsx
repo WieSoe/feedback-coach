@@ -54,6 +54,7 @@ const OUTPUT_LANGUAGES = [
   'Polish',
   '中文',
   '日本語',
+  'العربية',
 ]
 
 export default function FeedbackForm({
@@ -104,6 +105,24 @@ export default function FeedbackForm({
       <h2>📝 Prepare Your Feedback</h2>
 
       <form onSubmit={handleSubmit} noValidate>
+        <div className="form-group output-language-group">
+          <label htmlFor="outputLanguage">I want my preparation in:</label>
+          <select
+            id="outputLanguage"
+            name="outputLanguage"
+            value={selectedLanguage}
+            aria-describedby="output-language-hint"
+            onChange={(e) => onLanguageChange(e.target.value)}
+          >
+            {OUTPUT_LANGUAGES.map((language) => (
+              <option key={language} value={language}>
+                {language}
+              </option>
+            ))}
+          </select>
+          <p id="output-language-hint" className="output-language-hint">You can write your input in any language.</p>
+        </div>
+
         {isManagerAboutSomeone ? (
           <div className="self-intro-box">
             This type of feedback requires factual, neutral observations.
@@ -212,22 +231,6 @@ export default function FeedbackForm({
             }
           />
           <p className="char-counter">{formData.description.length} / 2000 characters</p>
-        </div>
-
-        <div className="form-group output-language-group">
-          <label htmlFor="outputLanguage">Output language</label>
-          <select
-            id="outputLanguage"
-            name="outputLanguage"
-            value={selectedLanguage}
-            onChange={(e) => onLanguageChange(e.target.value)}
-          >
-            {OUTPUT_LANGUAGES.map((language) => (
-              <option key={language} value={language}>
-                {language}
-              </option>
-            ))}
-          </select>
         </div>
 
         <button type="submit" className="primary" disabled={loading}>
