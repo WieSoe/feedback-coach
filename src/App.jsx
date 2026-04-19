@@ -203,7 +203,9 @@ export default function App() {
     })
     setChatHistory([])
 
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, 100)
   }
 
   const handleDeleteHistoryEntry = (id) => {
