@@ -153,12 +153,21 @@ export default function FeedbackOutput({
         style={{ textAlign: isArabic ? 'right' : 'left' }}
       >
         {isWritten ? (
-          <textarea
-            ref={textareaRef}
-            className="written-output-textarea"
-            value={editableText}
-            onChange={(e) => setEditableText(e.target.value)}
-          />
+          <>
+            <label htmlFor="written-output-textarea" className="sr-only">Editable written feedback</label>
+            <textarea
+              id="written-output-textarea"
+              ref={textareaRef}
+              className="written-output-textarea"
+              value={editableText}
+              onChange={(e) => setEditableText(e.target.value)}
+              maxLength={5000}
+              aria-describedby="written-output-limit"
+            />
+            <p id="written-output-limit" className="char-counter" aria-live="polite">
+              {editableText.length} / 5000 characters
+            </p>
+          </>
         ) : (
           <div className="markdown-output">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{mainFeedback || data.generatedFeedback}</ReactMarkdown>

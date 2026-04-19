@@ -307,7 +307,7 @@ export default function App() {
       neutralizeAbortController.abort()
     }
     neutralizeAbortController = new AbortController()
-    const timeoutId = setTimeout(() => neutralizeAbortController.abort(), 15000)
+    const timeoutId = setTimeout(() => neutralizeAbortController.abort(), 10000)
 
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -429,7 +429,7 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
       // Handle timeout
       if (error.name === 'AbortError') {
         errorMessage = 'Analysis is taking too long. Try with a shorter text.'
-        console.error('[Neutralize - Timeout (>15s)]', {
+        console.error('[Neutralize - Timeout (>10s)]', {
           error: error.message,
           timestamp: new Date().toISOString(),
         })

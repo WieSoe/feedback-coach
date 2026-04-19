@@ -247,6 +247,7 @@ export default function FeedbackForm({
           type="button"
           className={`advanced-mode-toggle ${advancedMode ? 'toggle-btn-active' : 'toggle-btn-inactive'}`}
           aria-pressed={advancedMode}
+          aria-label={advancedMode ? 'Disable Advanced Mode' : 'Enable Advanced Mode'}
           onClick={() => onAdvancedModeChange?.(!advancedMode)}
         >
           <Zap size={16} style={{ flexShrink: 0 }} />
