@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import PropTypes from 'prop-types'
 import { MessageSquare } from 'lucide-react'
 import { Analytics } from '@vercel/analytics/react'
 import FeedbackForm from './components/FeedbackForm'
@@ -15,6 +14,7 @@ const HISTORY_STORAGE_KEY = 'feedback_history'
 const OUTPUT_LANGUAGE_STORAGE_KEY = 'feedback_output_language'
 const API_KEY_STORAGE_KEY = 'anthropic_api_key'
 const PRIVACY_MODE_STORAGE_KEY = 'privacy_mode_enabled'
+const ADVANCED_MODE_STORAGE_KEY = 'feedback_coach_advanced_mode'
 
 const LANGUAGE_MAP = {
   de: 'Deutsch',
@@ -75,6 +75,7 @@ const detectBrowserLanguage = () => {
 const loadApiKey = () => localStorage.getItem(API_KEY_STORAGE_KEY) || ''
 
 const loadPrivacyMode = () => localStorage.getItem(PRIVACY_MODE_STORAGE_KEY) === 'true'
+const loadAdvancedMode = () => localStorage.getItem(ADVANCED_MODE_STORAGE_KEY) === 'true'
 
 const DEFAULT_FORM_DATA = {
   framework: 'sbi',
@@ -95,6 +96,7 @@ export default function App() {
   const [feedbackHistory, setFeedbackHistory] = useState(loadHistory)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [privacyMode, setPrivacyMode] = useState(loadPrivacyMode)
+  const [advancedMode, setAdvancedMode] = useState(loadAdvancedMode)
   const [formInitialData, setFormInitialData] = useState(null)
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
     const saved = localStorage.getItem(OUTPUT_LANGUAGE_STORAGE_KEY)
@@ -539,6 +541,11 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
               onSubmit={handleGenerateFeedback}
               loading={loading}
               privacyMode={privacyMode}
+              advancedMode={advancedMode}
+              onAdvancedModeChange={(val) => {
+                setAdvancedMode(val)
+                localStorage.setItem(ADVANCED_MODE_STORAGE_KEY, String(val))
+              }}
               initialData={formInitialData}
               selectedLanguage={selectedLanguage}
               onLanguageChange={handleLanguageChange}
@@ -555,6 +562,7 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
               onFollowUp={handleFollowUp}
               onReset={handleReset}
               selectedLanguage={selectedLanguage}
+              advancedMode={advancedMode}
             />
           )}
         </div>
@@ -590,8 +598,6 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
   )
 }
 
-App.propTypes = PropTypes.exact({})
-
 function generatePrompt(formData, selectedLanguage) {
   const safeLanguage = sanitizeOutputLanguage(selectedLanguage)
   const outputFormat = formData.outputFormat || 'conversation'
@@ -605,7 +611,10 @@ function generatePrompt(formData, selectedLanguage) {
     ? `\nIMPORTANT: This feedback is addressed TO THE MANAGER, not to ${recipient}.
 Never use 'I need to address this with ${recipient}' or similar.
 The user is speaking to the manager about ${recipient}.
-Use third person when referring to ${recipient}.`
+Use third person when referring to ${recipient}.
+Do NOT suggest what the manager should do with ${recipient} (no coaching recommendations, no HR action plans).
+Only report: (1) what the user observed (factual), (2) the impact on the team, (3) what the user needs from the manager (awareness, a conversation, clarity on next steps).
+The manager decides what to do — not the feedback giver.`
     : ''
 
   const promptInjectionGuard = `
@@ -791,6 +800,7 @@ Rules:
 - No 'I feel' language — focus on observable facts and impact
 - Only use facts provided by the user
 - Max 150 words
+- End with a short, direct invitation to dialogue — one sentence maximum. Examples: 'Can we discuss this soon?' / 'I'd like to find a solution together.' / 'I'm open to hearing your perspective on this.' This reflects Kim Scott's core principle: Radical Candor is direct AND caring — not a one-way verdict.
 - Respond in ${safeLanguage}`,
     self: `Self-Clarification is designed for conversation preparation only, 
 not for written feedback. If this format is selected with written output,

@@ -26,31 +26,32 @@ export default function FeedbackHistory({ entries, isOpen, privacyMode, onToggle
           aria-expanded={isOpen}
           disabled={privacyMode}
         >
-          <Clock style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> History ({entries.length})
+          <Clock size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} /> History ({entries.length})
         </button>
         <div className="privacy-controls">
           <button
             type="button"
-            className="privacy-toggle"
+            className={`privacy-toggle ${privacyMode ? 'toggle-btn-active' : 'toggle-btn-inactive'}`}
             onClick={onTogglePrivacyMode}
             aria-pressed={privacyMode}
             aria-label={privacyMode ? 'Disable privacy mode' : 'Enable privacy mode'}
             title="Privacy Mode — turn on when working on sensitive feedback. No sessions will be saved while active. Turn off anytime to resume saving history."
           >
             {privacyMode ? (
-              <EyeOff style={{ width: '14px', height: '14px', marginRight: '6px', verticalAlign: 'middle' }} />
+              <EyeOff size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
             ) : (
-              <Eye style={{ width: '14px', height: '14px', marginRight: '6px', verticalAlign: 'middle' }} />
+              <Eye size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
             )}
             <span className="privacy-toggle-label">Privacy Mode</span>
           </button>
-          {privacyMode && <span className="private-session-chip">● Private session</span>}
         </div>
       </div>
 
-      <p className="privacy-mode-hint">
-        Privacy Mode — turn on when working on sensitive feedback. No sessions will be saved while active. Turn off anytime to resume saving history.
-      </p>
+      {privacyMode && (
+        <p className="privacy-mode-hint">
+          Privacy Mode — turn on when working on sensitive feedback. No sessions will be saved while active. Turn off anytime to resume saving history.
+        </p>
+      )}
 
       {!privacyMode && !isOpen && entries.length === 0 && (
         <p className="history-intro-hint">

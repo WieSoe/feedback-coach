@@ -8,6 +8,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  margin-bottom: 0;
 }
 
 .privacy-controls {
@@ -16,6 +17,7 @@
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  margin-left: auto;
 }
 
 .history-toggle {
@@ -51,26 +53,11 @@
   display: inline-flex;
   align-items: center;
   width: auto;
-  border: 0.5px solid #e5e7eb;
-  background: #ffffff;
-  color: #374151;
   font-size: 12px;
   font-weight: 500;
   border-radius: 999px;
   padding: 6px 10px;
   box-shadow: none;
-}
-
-.privacy-toggle:hover {
-  border-color: #185FA5;
-  color: #185FA5;
-  box-shadow: none;
-}
-
-.privacy-toggle[aria-pressed='true'] {
-  border-color: #185FA5;
-  background: rgba(24, 95, 165, 0.1);
-  color: #185FA5;
 }
 
 .privacy-toggle:focus-visible {
@@ -80,16 +67,7 @@
 
 .privacy-toggle-label {
   font-size: 13px;
-  color: #6b7280;
-}
-
-.private-session-chip {
-  color: #92400e;
-  background: #fef3c7;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+  color: inherit;
 }
 
 .privacy-mode-hint {

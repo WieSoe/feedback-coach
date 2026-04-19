@@ -20,6 +20,7 @@ export default function FeedbackOutput({
   onFollowUp,
   onReset,
   selectedLanguage,
+  advancedMode = false,
 }) {
   const isSelf = data.framework === 'self'
   const isManagerReport = data.situationType === 'Feedback about someone to their Manager'
@@ -30,6 +31,10 @@ export default function FeedbackOutput({
   const [editableText, setEditableText] = useState(data.generatedFeedback)
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
+
+  useEffect(() => {
+    setEditableText(data.generatedFeedback)
+  }, [data.generatedFeedback])
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -190,7 +195,7 @@ export default function FeedbackOutput({
         </div>
       )}
 
-      {!isWritten && (
+      {!isWritten && advancedMode && (
       <div className="chat-section" aria-label="Follow-up conversation">
         <h3>🗨️ Refine or Practice</h3>
 
@@ -275,4 +280,5 @@ FeedbackOutput.propTypes = {
   onFollowUp: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
   selectedLanguage: PropTypes.string.isRequired,
+  advancedMode: PropTypes.bool,
 }

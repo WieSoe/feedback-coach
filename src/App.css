@@ -41,6 +41,7 @@
 .left-column {
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
 @media (max-width: 768px) {
@@ -54,7 +55,7 @@
   background: #ffffff;
   border-radius: 8px;
   border: 0.5px solid #e5e7eb;
-  padding: 24px;
+  padding: 28px;
 }
 
 /* ── Form layout ── */
@@ -75,6 +76,26 @@ form {
   font-weight: 500;
   color: #111827;
   font-size: 14px;
+}
+
+.toggle-btn-inactive {
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  background: #ffffff;
+}
+
+.toggle-btn-active {
+  border: 1px solid #185FA5;
+  color: #185FA5;
+  background: #eff6ff;
+}
+
+.toggle-btn-inactive:hover {
+  background: #f9fafb;
+}
+
+.toggle-btn-active:hover {
+  background: #e6f1fb;
 }
 
 .form-group input,
