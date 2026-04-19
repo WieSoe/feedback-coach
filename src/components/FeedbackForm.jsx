@@ -81,11 +81,12 @@ export default function FeedbackForm({
   const [showNeutralizationExplanation, setShowNeutralizationExplanation] = useState(false)
   const [showDefuseRecommendation, setShowDefuseRecommendation] = useState(true)
   const [defuseSkipped, setDefuseSkipped] = useState(false)
+  const [defuseCompleted, setDefuseCompleted] = useState(false)
 
   const isSelf = formData.framework === 'self'
   const isManagerAboutSomeone = formData.situationType === 'Feedback about someone to their Manager'
   const defuseResult = neutralized
-  const canGenerateManagerFeedback = defuseSkipped || Boolean(defuseResult)
+  const canGenerateManagerFeedback = defuseSkipped || defuseCompleted || Boolean(defuseResult)
 
   useEffect(() => {
     if (isManagerAboutSomeone) {
@@ -100,6 +101,13 @@ export default function FeedbackForm({
       ...prev,
       ...initialData,
     }))
+    setNeutralized(null)
+    setNeutralizingLoading(false)
+    setNeutralizeError(null)
+    setShowNeutralizationExplanation(false)
+    setShowDefuseRecommendation(true)
+    setDefuseSkipped(false)
+    setDefuseCompleted(false)
   }, [initialData])
 
   const handleChange = (e) => {
@@ -130,10 +138,18 @@ export default function FeedbackForm({
       description: neutralized.neutralizedText || prev.description,
     }))
     setNeutralized(null)
+    setNeutralizingLoading(false)
+    setDefuseCompleted(true)
+    setDefuseSkipped(true)
+    setShowDefuseRecommendation(false)
   }
 
   const handleKeepOriginal = () => {
     setNeutralized(null)
+    setNeutralizingLoading(false)
+    setDefuseCompleted(true)
+    setDefuseSkipped(true)
+    setShowDefuseRecommendation(false)
   }
 
   const renderOriginalWithHighlights = (text, problematicWords) => {

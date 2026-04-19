@@ -157,6 +157,7 @@ export default function App() {
         generatedFeedback: content,
         situationType: formData.situationType,
         description: formData.description,
+        outputLanguage: selectedLanguage,
       }
 
       setFeedbackHistory((prev) => {
@@ -178,6 +179,11 @@ export default function App() {
   }
 
   const handleLoadHistoryEntry = (entry) => {
+    const restoredLanguage = sanitizeOutputLanguage(entry.outputLanguage || selectedLanguage)
+
+    setSelectedLanguage(restoredLanguage)
+    localStorage.setItem(OUTPUT_LANGUAGE_STORAGE_KEY, restoredLanguage)
+
     setFeedbackData({
       framework: entry.framework,
       recipient: entry.recipient === 'Myself' ? '' : entry.recipient,
@@ -192,6 +198,7 @@ export default function App() {
       topic: entry.topic,
       situationType: entry.situationType || 'Feedback to my Report',
       description: entry.description || '',
+      outputLanguage: restoredLanguage,
     })
     setChatHistory([])
   }
