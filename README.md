@@ -19,6 +19,14 @@ A free tool for anybody who needs to give critical, constructive, or sensitive f
 - Radical Candor (Kim Scott)
 - Self-Clarification — understand your own reaction first (based on NVC)
 
+## Features
+
+- **"Defuse my words"** — highlights loaded language in red, suggests neutral alternatives based on NVC principles
+- **Feedback History** — last 10 sessions saved in browser, quickly access previous work
+- **Follow-up chat** — refine and practice after generation
+- **Output in 10 languages** — auto-detected from browser language
+- **Reset button** — start fresh without page reload
+
 ## Why this exists
 
 I built this as an agile coach turned engineering manager.
