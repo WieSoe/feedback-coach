@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { MessageSquare } from 'lucide-react'
+import { Analytics } from '@vercel/analytics/react'
 import FeedbackForm from './components/FeedbackForm'
 import FeedbackOutput from './components/FeedbackOutput'
 import FeedbackHistory from './components/FeedbackHistory'
@@ -506,6 +507,7 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
           </a>
         </p>
       </footer>
+      <Analytics />
     </div>
   )
 }
