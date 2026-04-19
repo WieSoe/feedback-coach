@@ -52,6 +52,7 @@ const OUTPUT_LANGUAGES = [
   'Português',
   'Nederlands',
   'Polish',
+  'Русский',
   '中文',
   '日本語',
   'العربية',

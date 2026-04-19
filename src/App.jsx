@@ -29,8 +29,10 @@ const SUPPORTED_OUTPUT_LANGUAGES = [
   'Português',
   'Nederlands',
   'Polish',
+  'Русский',
   '中文',
   '日本語',
+  'العربية',
 ]
 
 const sanitizeOutputLanguage = (language) => {
