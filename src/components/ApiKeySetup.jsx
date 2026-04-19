@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 import '../styles/ApiKeySetup.css'
 
 export default function ApiKeySetup({ onSubmit }) {
@@ -17,7 +18,7 @@ export default function ApiKeySetup({ onSubmit }) {
       <div className="api-setup-header">
         <h2>Set up your API key</h2>
         <p className="subtitle">
-          Enter your Anthropic API key to get started. Your key stays in your browser session and is never sent to our servers.
+          Enter your Anthropic API key to get started. Your key stays in your browser and is never sent to our servers.
         </p>
       </div>
 
@@ -74,7 +75,7 @@ export default function ApiKeySetup({ onSubmit }) {
             </a>
           </p>
           <p id="api-key-warning" className="api-key-warning">
-            Your key is stored only for this browser session. Avoid using shared or public computers.
+            Your key is stored locally in your browser. Avoid using on shared or public computers.
           </p>
         </div>
 
@@ -86,7 +87,7 @@ export default function ApiKeySetup({ onSubmit }) {
       <div className="info-box">
         <h3>How it works</h3>
         <ul>
-          <li>Your API key is stored only in your browser session storage</li>
+          <li>Your API key is stored only in your browser's local storage</li>
           <li>All API calls go directly to Anthropic's servers</li>
           <li>We don't store any of your feedback data</li>
           <li>You pay only for the API calls you make</li>
@@ -94,4 +95,8 @@ export default function ApiKeySetup({ onSubmit }) {
       </div>
     </div>
   )
+}
+
+ApiKeySetup.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
 }

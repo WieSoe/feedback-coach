@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2 } from 'lucide-react'
+import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2, AlertTriangle } from 'lucide-react'
 import '../styles/FeedbackOutput.css'
 
 const FRAMEWORK_LABELS = {
@@ -111,6 +112,25 @@ export default function FeedbackOutput({
           <RotateCcw style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Start new feedback
       </button>
       <h2><Lightbulb style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px', width: '24px', height: '24px', color: '#1a1a1a' }} /> Your Feedback Preparation</h2>
+
+      <div style={{
+        background: '#fef3c7',
+        border: '0.5px solid #d97706',
+        borderRadius: '8px',
+        padding: '12px 16px',
+        marginBottom: '16px',
+        display: 'flex',
+        gap: '10px',
+        alignItems: 'flex-start',
+        fontSize: '13px',
+        color: '#92400e',
+      }}>
+        <AlertTriangle size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+        <span>
+          This is AI-generated. Always review before sending or using.
+          It does not replace your own judgment and knowledge of the situation.
+        </span>
+      </div>
 
       <div className="output-meta">
         <p><strong>Framework:</strong> {frameworkLabel}</p>
@@ -234,4 +254,25 @@ export default function FeedbackOutput({
       )}
     </div>
   )
+}
+
+FeedbackOutput.propTypes = {
+  data: PropTypes.shape({
+    framework: PropTypes.string.isRequired,
+    situationType: PropTypes.string,
+    recipient: PropTypes.string,
+    topic: PropTypes.string,
+    generatedFeedback: PropTypes.string.isRequired,
+    outputFormat: PropTypes.oneOf(['conversation', 'written']),
+  }).isRequired,
+  chatHistory: PropTypes.arrayOf(
+    PropTypes.shape({
+      role: PropTypes.string.isRequired,
+      content: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  chatLoading: PropTypes.bool.isRequired,
+  onFollowUp: PropTypes.func.isRequired,
+  onReset: PropTypes.func.isRequired,
+  selectedLanguage: PropTypes.string.isRequired,
 }

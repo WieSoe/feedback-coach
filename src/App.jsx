@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 import { MessageSquare } from 'lucide-react'
 import { Analytics } from '@vercel/analytics/react'
 import FeedbackForm from './components/FeedbackForm'
@@ -13,6 +14,7 @@ let neutralizeAbortController = null
 const HISTORY_STORAGE_KEY = 'feedback_history'
 const OUTPUT_LANGUAGE_STORAGE_KEY = 'feedback_output_language'
 const API_KEY_STORAGE_KEY = 'anthropic_api_key'
+const PRIVACY_MODE_STORAGE_KEY = 'privacy_mode_enabled'
 
 const LANGUAGE_MAP = {
   de: 'Deutsch',
@@ -70,21 +72,9 @@ const detectBrowserLanguage = () => {
   return sanitizeOutputLanguage(LANGUAGE_MAP[primary] || 'English')
 }
 
-const loadApiKey = () => {
-  if (typeof window === 'undefined') return ''
+const loadApiKey = () => localStorage.getItem(API_KEY_STORAGE_KEY) || ''
 
-  const sessionKey = sessionStorage.getItem(API_KEY_STORAGE_KEY)
-  if (sessionKey) return sessionKey
-
-  const legacyLocalKey = localStorage.getItem(API_KEY_STORAGE_KEY)
-  if (legacyLocalKey) {
-    sessionStorage.setItem(API_KEY_STORAGE_KEY, legacyLocalKey)
-    localStorage.removeItem(API_KEY_STORAGE_KEY)
-    return legacyLocalKey
-  }
-
-  return ''
-}
+const loadPrivacyMode = () => localStorage.getItem(PRIVACY_MODE_STORAGE_KEY) === 'true'
 
 const DEFAULT_FORM_DATA = {
   framework: 'sbi',
@@ -104,6 +94,7 @@ export default function App() {
   const [chatLoading, setChatLoading] = useState(false)
   const [feedbackHistory, setFeedbackHistory] = useState(loadHistory)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [privacyMode, setPrivacyMode] = useState(loadPrivacyMode)
   const [formInitialData, setFormInitialData] = useState(null)
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
     const saved = localStorage.getItem(OUTPUT_LANGUAGE_STORAGE_KEY)
@@ -112,8 +103,18 @@ export default function App() {
 
   const handleApiKeySubmit = (key) => {
     setApiKey(key)
-    sessionStorage.setItem(API_KEY_STORAGE_KEY, key)
-    localStorage.removeItem(API_KEY_STORAGE_KEY)
+    localStorage.setItem(API_KEY_STORAGE_KEY, key)
+  }
+
+  const handleTogglePrivacyMode = () => {
+    setPrivacyMode((prev) => {
+      const next = !prev
+      localStorage.setItem(PRIVACY_MODE_STORAGE_KEY, String(next))
+      if (next) {
+        setHistoryOpen(false)
+      }
+      return next
+    })
   }
 
   const handleGenerateFeedback = async (formData) => {
@@ -192,11 +193,13 @@ export default function App() {
         outputFormat: formData.outputFormat || 'conversation',
       }
 
-      setFeedbackHistory((prev) => {
-        const next = [historyEntry, ...prev].slice(0, 10)
-        saveHistory(next)
-        return next
-      })
+      if (!privacyMode) {
+        setFeedbackHistory((prev) => {
+          const next = [historyEntry, ...prev].slice(0, 10)
+          saveHistory(next)
+          return next
+        })
+      }
     } catch (error) {
       console.error('Anthropic API request failed:', error)
 
@@ -219,6 +222,8 @@ export default function App() {
   }
 
   const handleLoadHistoryEntry = (entry) => {
+    if (privacyMode) return
+
     const restoredLanguage = sanitizeOutputLanguage(entry.outputLanguage || selectedLanguage)
 
     setSelectedLanguage(restoredLanguage)
@@ -246,6 +251,8 @@ export default function App() {
   }
 
   const handleDeleteHistoryEntry = (id) => {
+    if (privacyMode) return
+
     setFeedbackHistory((prev) => {
       const next = prev.filter((entry) => entry.id !== id)
       saveHistory(next)
@@ -254,6 +261,8 @@ export default function App() {
   }
 
   const handleClearHistory = () => {
+    if (privacyMode) return
+
     setFeedbackHistory([])
     saveHistory([])
   }
@@ -519,7 +528,9 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
             <FeedbackHistory
               entries={feedbackHistory}
               isOpen={historyOpen}
+              privacyMode={privacyMode}
               onToggle={() => setHistoryOpen((prev) => !prev)}
+              onTogglePrivacyMode={handleTogglePrivacyMode}
               onLoad={handleLoadHistoryEntry}
               onDelete={handleDeleteHistoryEntry}
               onClearAll={handleClearHistory}
@@ -527,6 +538,7 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
             <FeedbackForm
               onSubmit={handleGenerateFeedback}
               loading={loading}
+              privacyMode={privacyMode}
               initialData={formInitialData}
               selectedLanguage={selectedLanguage}
               onLanguageChange={handleLanguageChange}
@@ -578,6 +590,8 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
   )
 }
 
+App.propTypes = PropTypes.exact({})
+
 function generatePrompt(formData, selectedLanguage) {
   const safeLanguage = sanitizeOutputLanguage(selectedLanguage)
   const outputFormat = formData.outputFormat || 'conversation'
@@ -586,6 +600,13 @@ function generatePrompt(formData, selectedLanguage) {
   const topic = formData.topic || ''
   const description = formData.description || ''
   const situationType = formData.situationType || 'Feedback to my Report'
+  const isManagerReport = situationType === 'Feedback about someone to their Manager'
+  const managerAudienceInstruction = isManagerReport
+    ? `\nIMPORTANT: This feedback is addressed TO THE MANAGER, not to ${recipient}.
+Never use 'I need to address this with ${recipient}' or similar.
+The user is speaking to the manager about ${recipient}.
+Use third person when referring to ${recipient}.`
+    : ''
 
   const promptInjectionGuard = `
 
@@ -599,6 +620,7 @@ Security rule:
 Generate a conversation guide for giving feedback to ${recipient} about ${topic}.
 Context: ${description}
 Situation type: ${situationType}
+  ${managerAudienceInstruction}
 
 Structure the output as:
 1. Opening Line — warm but direct, no small talk
@@ -618,6 +640,7 @@ Rules:
 Generate a conversation guide for ${recipient} about ${topic}.
 Context: ${description}
 Situation type: ${situationType}
+  ${managerAudienceInstruction}
 
 Structure the output as:
 1. Opening Line — create safety, signal good intent
@@ -638,6 +661,7 @@ Rules:
 Generate a conversation guide for ${recipient} about ${topic}.
 Context: ${description}
 Situation type: ${situationType}
+  ${managerAudienceInstruction}
 
 Structure the output as:
 1. Opening Line — start with genuine appreciation
@@ -657,6 +681,7 @@ Rules:
 Generate a conversation guide for ${recipient} about ${topic}.
 Context: ${description}
 Situation type: ${situationType}
+  ${managerAudienceInstruction}
 
 Structure the output as:
 1. Opening Line — direct but warm ('I want to talk to you about something important. I'm raising this because I care about your success.')
@@ -676,6 +701,7 @@ Rules:
     self: `You are an empathetic NVC coach helping the user understand their own reaction.
 The user is emotionally charged and needs to clarify their feelings before talking to someone.
 Context: ${description}
+  ${managerAudienceInstruction}
 
 Structure the output as:
 1. Reflection — mirror back what you heard without judgment
@@ -696,6 +722,7 @@ Rules:
 Write a professional piece of written feedback for ${recipient} about ${topic}.
 Context: ${description}
 Situation type: ${situationType}
+  ${managerAudienceInstruction}
 
 Write 2-3 short paragraphs of flowing prose:
 Paragraph 1: The specific situation and observed behavior (factual, no judgment)
@@ -714,6 +741,7 @@ Rules:
 Write a professional piece of written feedback for ${recipient} about ${topic}.
 Context: ${description}
 Situation type: ${situationType}
+  ${managerAudienceInstruction}
 
 Write 2-3 short paragraphs of flowing prose:
 Paragraph 1: Factual observation ('When I observe/read/hear...')
@@ -732,6 +760,7 @@ Rules:
 Write a professional piece of written feedback for ${recipient} about ${topic}.
 Context: ${description}
 Situation type: ${situationType}
+  ${managerAudienceInstruction}
 
 Write 2-3 short paragraphs of flowing prose:
 Paragraph 1: Genuine appreciation of a strength (specific, not generic)
@@ -749,6 +778,7 @@ Rules:
 Write a professional piece of written feedback for ${recipient} about ${topic}.
 Context: ${description}
 Situation type: ${situationType}
+  ${managerAudienceInstruction}
 
 Write 2-3 short paragraphs of flowing prose:
 Paragraph 1: Direct observation — what happened, no softening (show care through directness)
