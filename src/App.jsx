@@ -201,6 +201,8 @@ export default function App() {
       outputLanguage: restoredLanguage,
     })
     setChatHistory([])
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleDeleteHistoryEntry = (id) => {
