@@ -45,7 +45,7 @@ export default function FeedbackHistory({ entries, isOpen, onToggle, onLoad, onD
                   className="history-item"
                   role="button"
                   tabIndex={0}
-                  onClick={() => onLoad(entry)}
+                  onClick={(e) => { e.preventDefault(); onLoad(entry); e.currentTarget.blur() }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()

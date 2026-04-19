@@ -56,8 +56,14 @@ export default function FeedbackOutput({
 
   const { main: mainFeedback, note: trailingNote } = extractTrailingNote(data.generatedFeedback)
 
+  const prevChatLengthRef = useRef(0)
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const prev = prevChatLengthRef.current
+    prevChatLengthRef.current = chatHistory.length
+    if (chatHistory.length > 0 && chatHistory.length > prev) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [chatHistory])
 
   const copyToClipboard = () => {

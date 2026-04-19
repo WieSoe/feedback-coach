@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { MessageSquare } from 'lucide-react'
 import { Analytics } from '@vercel/analytics/react'
 import FeedbackForm from './components/FeedbackForm'
@@ -82,7 +82,6 @@ export default function App() {
   const [apiKey, setApiKey] = useState(localStorage.getItem('anthropic_api_key') || '')
   const [feedbackData, setFeedbackData] = useState(null)
   const [loading, setLoading] = useState(false)
-  const appTopRef = useRef(null)
   const [chatHistory, setChatHistory] = useState([])
   const [chatLoading, setChatLoading] = useState(false)
   const [feedbackHistory, setFeedbackHistory] = useState(loadHistory)
@@ -203,10 +202,6 @@ export default function App() {
       outputLanguage: restoredLanguage,
     })
     setChatHistory([])
-
-    setTimeout(() => {
-      appTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 150)
   }
 
   const handleDeleteHistoryEntry = (id) => {
@@ -442,7 +437,7 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
   }
 
   return (
-    <div ref={appTopRef} className="app">
+    <div className="app">
       <header className="app-header card">
         <h1 className="app-header-title">
           <MessageSquare width={28} height={28} />
