@@ -1,5 +1,9 @@
 # Feedback Coach
 
+![Version](https://img.shields.io/badge/version-v2.1.0-blue)
+![Live](https://img.shields.io/badge/live-vercel-brightgreen)
+![License](https://img.shields.io/badge/license-CC%20BY--ND%204.0-lightgrey)
+
 Prepare difficult conversations with confidence — 
 as a structured talk or as written feedback, ready to send.
 
