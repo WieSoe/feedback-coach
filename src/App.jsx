@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MessageSquare } from 'lucide-react'
 import FeedbackForm from './components/FeedbackForm'
 import FeedbackOutput from './components/FeedbackOutput'
 import FeedbackHistory from './components/FeedbackHistory'
@@ -429,8 +430,11 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>💬 Feedback Coach</h1>
+      <header className="app-header card">
+        <h1 className="app-header-title">
+          <MessageSquare width={28} height={28} />
+          <span>Feedback Coach</span>
+        </h1>
         <p>Prepare difficult conversations with confidence</p>
       </header>
 

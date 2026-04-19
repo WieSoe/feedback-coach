@@ -1,4 +1,5 @@
 import '../styles/FeedbackHistory.css'
+import { Clock, X, Trash2 } from 'lucide-react'
 
 const FRAMEWORK_SHORT = {
   sbi: 'SBI',
@@ -22,7 +23,7 @@ export default function FeedbackHistory({ entries, isOpen, onToggle, onLoad, onD
         onClick={onToggle}
         aria-expanded={isOpen}
       >
-        {isOpen ? `▾ History (${entries.length})` : `▸ History (${entries.length})`}
+        <Clock style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> History ({entries.length})
       </button>
 
       {!isOpen && entries.length === 0 && (
@@ -71,7 +72,7 @@ export default function FeedbackHistory({ entries, isOpen, onToggle, onLoad, onD
                       onDelete(entry.id)
                     }}
                   >
-                    x
+                    <X style={{ width: '16px', height: '16px' }} />
                   </button>
                 </div>
               ))}
@@ -84,7 +85,7 @@ export default function FeedbackHistory({ entries, isOpen, onToggle, onLoad, onD
               className="history-clear"
               onClick={onClearAll}
             >
-              Clear all history
+              <Trash2 style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Clear all history
             </button>
           )}
         </>

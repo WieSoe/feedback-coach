@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PenLine, Zap, Sparkles } from 'lucide-react'
 import '../styles/FeedbackForm.css'
 
 const FRAMEWORKS = [
@@ -158,7 +159,10 @@ export default function FeedbackForm({
 
   return (
     <div className="feedback-form card">
-      <h2>📝 Prepare Your Feedback</h2>
+      <h2 className="feedback-form-title">
+        <PenLine width={28} height={28} />
+        <span>Prepare Your Feedback</span>
+      </h2>
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="form-group output-language-group">
@@ -287,7 +291,7 @@ export default function FeedbackForm({
             }
           />
           
-          {!isSelf && formData.description.length >= 10 && (
+          {isManagerAboutSomeone && formData.description.length >= 10 && (
             <>
               <button
                 type="button"
@@ -295,7 +299,14 @@ export default function FeedbackForm({
                 onClick={handleNeutralizeClick}
                 disabled={neutralizingLoading}
               >
-                {neutralizingLoading ? '⏳ Analyzing...' : '� Defuse my words'}
+                {neutralizingLoading ? (
+                  '⏳ Analyzing...'
+                ) : (
+                  <>
+                    <Zap style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
+                    Defuse my words
+                  </>
+                )}
               </button>
               
               <div className="neutralization-explanation-wrapper">
@@ -368,8 +379,8 @@ export default function FeedbackForm({
           <p className="char-counter">{formData.description.length} / 2000 characters</p>
         </div>
 
-        <button type="submit" className="primary" disabled={loading}>
-          {loading ? '⏳ Generating...' : '✨ Generate Feedback Preparation'}
+          <button type="submit" className="primary" disabled={loading}>
+            {loading ? '⏳ Generating...' : <><Sparkles style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Generate Feedback Preparation</>}
         </button>
       </form>
     </div>

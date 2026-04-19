@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { Lightbulb, Copy, RotateCcw, MessageSquare } from 'lucide-react'
 import '../styles/FeedbackOutput.css'
 
 const FRAMEWORK_LABELS = {
@@ -60,9 +61,9 @@ export default function FeedbackOutput({
         onClick={onReset}
         aria-label="Start new feedback and clear current output"
       >
-        ↩ Start new feedback
+          <RotateCcw style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Start new feedback
       </button>
-      <h2>💡 Your Feedback Preparation</h2>
+      <h2><Lightbulb style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px', width: '20px', height: '20px' }} /> Your Feedback Preparation</h2>
 
       <div className="output-meta">
         <p><strong>Framework:</strong> {frameworkLabel}</p>
@@ -86,12 +87,12 @@ export default function FeedbackOutput({
 
       <div className="output-actions">
         <button className="primary" onClick={copyToClipboard}>
-          📋 Copy to Clipboard
+          <Copy style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Copy to Clipboard
         </button>
       </div>
 
       <div className="tips-box">
-        <h4>💬 Tips for the Conversation</h4>
+        <h4><MessageSquare style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Tips for the Conversation</h4>
         <ul>
           <li>Practice the opening line out loud</li>
           <li>Listen more than you talk</li>

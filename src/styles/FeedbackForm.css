@@ -5,6 +5,12 @@
   font-weight: 600;
 }
 
+.feedback-form-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .feedback-form form {
   display: flex;
   flex-direction: column;
@@ -25,6 +31,15 @@
   border-radius: 8px;
   padding: 10px 12px;
   font-size: 15px;
+}
+
+.feedback-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
 }
 
 .form-group small {
