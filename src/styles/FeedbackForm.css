@@ -125,3 +125,234 @@
   font-size: 12px;
   color: #6b7280;
 }
+
+/* Neutralize button and hint */
+.neutralize-button {
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 0.5px solid #d1d5db;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 4px;
+}
+
+.neutralize-button:hover:not(:disabled) {
+  border-color: #9ca3af;
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.neutralize-button:focus-visible {
+  outline: 2px solid #185FA5;
+  outline-offset: 2px;
+}
+
+.neutralize-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.neutralize-error {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-left: 3px solid #dc2626;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #991b1b;
+  line-height: 1.5;
+}
+
+.neutralize-error p {
+  margin: 0;
+}
+
+.neutralization-explanation-wrapper {
+  margin-top: 8px;
+}
+
+.why-toggle-link {
+  background: none;
+  border: none;
+  color: #185FA5;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.why-toggle-link:hover {
+  color: #0C447C;
+}
+
+.why-toggle-link:focus-visible {
+  outline: 2px solid #185FA5;
+  outline-offset: 2px;
+}
+
+.neutralization-explanation {
+  background: #E6F1FB;
+  border-left: 3px solid #185FA5;
+  padding: 12px;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  color: #0C447C;
+  line-height: 1.6;
+  margin-top: 8px;
+}
+
+.neutralization-explanation p {
+  margin: 0 0 8px 0;
+}
+
+.neutralization-explanation p:last-child {
+  margin-bottom: 0;
+}
+
+.neutralization-explanation em {
+  font-style: italic;
+}
+
+.neutralize-hint {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.5;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.neutralize-hint em {
+  font-style: italic;
+}
+
+/* Neutralized suggestion box */
+.neutralized-suggestion {
+  background: white;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 12px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+
+.neutralized-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.neutralized-label-success {
+  color: #16a34a;
+  margin-top: 12px;
+}
+
+.neutralized-divider {
+  height: 0.5px;
+  background: #e5e7eb;
+  margin: 12px 0;
+}
+
+.neutralized-original {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #1f2937;
+  word-break: break-word;
+}
+
+.problematic-word {
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 3px;
+  padding: 0 3px;
+  font-weight: 500;
+}
+
+.neutralized-positive {
+  background: #f0fdf4;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #16a34a;
+  word-break: break-word;
+}
+
+.neutralized-explanation-text {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.neutralized-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.secondary-small {
+  padding: 7px 12px;
+  border-radius: 4px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.secondary-small:hover {
+  background: #2563eb;
+}
+
+.secondary-small:focus-visible {
+  outline: 2px solid #1e40af;
+  outline-offset: 2px;
+}
+
+.secondary-small-outline {
+  padding: 7px 12px;
+  border-radius: 4px;
+  border: 0.5px solid #d1d5db;
+  background: white;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.secondary-small-outline:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.secondary-small-outline:focus-visible {
+  outline: 2px solid #185FA5;
+  outline-offset: 2px;
+}

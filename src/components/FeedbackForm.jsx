@@ -64,6 +64,7 @@ export default function FeedbackForm({
   initialData,
   selectedLanguage,
   onLanguageChange,
+  onNeutralize,
 }) {
   const [formData, setFormData] = useState({
     framework: 'sbi',
@@ -73,6 +74,10 @@ export default function FeedbackForm({
     description: '',
     unmetNeed: '',
   })
+  const [neutralized, setNeutralized] = useState(null)
+  const [neutralizingLoading, setNeutralizingLoading] = useState(false)
+  const [neutralizeError, setNeutralizeError] = useState(null)
+  const [showNeutralizationExplanation, setShowNeutralizationExplanation] = useState(false)
 
   const isSelf = formData.framework === 'self'
   const isManagerAboutSomeone = formData.situationType === 'Feedback about someone to their Manager'
@@ -91,6 +96,56 @@ export default function FeedbackForm({
       ...prev,
       [name]: value,
     }))
+  }
+
+  const handleNeutralizeClick = async () => {
+    setNeutralizingLoading(true)
+    setNeutralizeError(null)
+    const result = await onNeutralize(formData.description)
+    if (result && result.error) {
+      setNeutralizeError(result.error)
+      setNeutralized(null)
+    } else if (result) {
+      setNeutralized(result)
+      setNeutralizeError(null)
+    }
+    setNeutralizingLoading(false)
+  }
+
+  const handleUseNeutralizedVersion = (neutralized) => {
+    setFormData((prev) => ({
+      ...prev,
+      description: neutralized.neutralizedText || prev.description,
+    }))
+    setNeutralized(null)
+  }
+
+  const handleKeepOriginal = () => {
+    setNeutralized(null)
+  }
+
+  const renderOriginalWithHighlights = (text, problematicWords) => {
+    if (!problematicWords || problematicWords.length === 0) {
+      return text
+    }
+
+    // Create a regex to find whole words (case-insensitive)
+    const wordRegex = new RegExp(
+      `\\b(${problematicWords.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`,
+      'gi'
+    )
+
+    const parts = text.split(wordRegex)
+    return parts.map((part, idx) => {
+      if (problematicWords.some(w => w.toLowerCase() === part?.toLowerCase())) {
+        return (
+          <span key={idx} className="problematic-word">
+            {part}
+          </span>
+        )
+      }
+      return part
+    })
   }
 
   const handleSubmit = (e) => {
@@ -194,7 +249,7 @@ export default function FeedbackForm({
                 value={formData.recipient}
                 onChange={handleChange}
                 maxLength={500}
-                placeholder="e.g., John (my report), Team lead, VP Engineering"
+                placeholder="e.g., John (my report), team lead, colleague"
                 autoComplete="off"
               />
             </div>
@@ -231,6 +286,85 @@ export default function FeedbackForm({
                   : 'Describe the situation, behavior, or concern. Be specific and factual.'
             }
           />
+          
+          {!isSelf && formData.description.length >= 10 && (
+            <>
+              <button
+                type="button"
+                className="neutralize-button"
+                onClick={handleNeutralizeClick}
+                disabled={neutralizingLoading}
+              >
+                {neutralizingLoading ? '⏳ Analyzing...' : '� Defuse my words'}
+              </button>
+              
+              <div className="neutralization-explanation-wrapper">
+                <button
+                  type="button"
+                  className="why-toggle-link"
+                  onClick={() => setShowNeutralizationExplanation(!showNeutralizationExplanation)}
+                >
+                  {showNeutralizationExplanation ? '▼' : '▶'} Why?
+                </button>
+                
+                {showNeutralizationExplanation && (
+                  <div className="neutralization-explanation">
+                    <p>When we're emotionally charged, our language often contains evaluations ('he's lazy'), generalizations ('always', 'never'), or assumptions ('he doesn't care'). This triggers defensiveness in the other person — they react to your words instead of hearing your concern.</p>
+                    <p>Neutral, observation-based language ('In the last 3 meetings, the deliverable was late') opens dialogue instead of closing it.</p>
+                    <p><em>Based on Nonviolent Communication by Marshall B. Rosenberg.</em></p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {neutralizeError && (
+            <div className="neutralize-error">
+              <p>{neutralizeError}</p>
+            </div>
+          )}
+
+          {neutralized && (
+            <div className="neutralized-suggestion">
+              <div className="neutralized-label">Original</div>
+              <div className="neutralized-original">
+                {renderOriginalWithHighlights(formData.description, neutralized.problematicWords)}
+              </div>
+
+              <div className="neutralized-divider"></div>
+
+              <div className="neutralized-label neutralized-label-success">Neutralized</div>
+              <div className="neutralized-positive">
+                {neutralized.neutralizedText}
+              </div>
+
+              {neutralized.explanation && (
+                <>
+                  <div className="neutralized-divider"></div>
+                  <div className="neutralized-label">What changed</div>
+                  <p className="neutralized-explanation-text">{neutralized.explanation}</p>
+                </>
+              )}
+
+              <div className="neutralized-actions">
+                <button
+                  type="button"
+                  className="secondary-small"
+                  onClick={() => handleUseNeutralizedVersion(neutralized)}
+                >
+                  ✓ Use this version
+                </button>
+                <button
+                  type="button"
+                  className="secondary-small-outline"
+                  onClick={handleKeepOriginal}
+                >
+                  Keep my original
+                </button>
+              </div>
+            </div>
+          )}
+
           <p className="char-counter">{formData.description.length} / 2000 characters</p>
         </div>
 

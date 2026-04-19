@@ -5,6 +5,9 @@ import FeedbackHistory from './components/FeedbackHistory'
 import ApiKeySetup from './components/ApiKeySetup'
 import './App.css'
 
+// Add a ref to track if neutralize is in progress
+let neutralizeAbortController = null
+
 const HISTORY_STORAGE_KEY = 'feedback_history'
 const OUTPUT_LANGUAGE_STORAGE_KEY = 'feedback_output_language'
 
@@ -218,6 +221,166 @@ export default function App() {
     localStorage.setItem(OUTPUT_LANGUAGE_STORAGE_KEY, safeLanguage)
   }
 
+  const handleNeutralize = async (description) => {
+    if (!apiKey) {
+      alert('Please set your API key first')
+      return null
+    }
+
+    // Cancel any previous neutralize request
+    if (neutralizeAbortController) {
+      neutralizeAbortController.abort()
+    }
+    neutralizeAbortController = new AbortController()
+    const timeoutId = setTimeout(() => neutralizeAbortController.abort(), 15000)
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 1000,
+          messages: [
+            {
+              role: 'user',
+              content: `You are an NVC coach. Neutralize ONLY the evaluative, emotional, or loaded words — keep all factual observations intact.
+
+Original text: ${description}
+
+Rules:
+- Remove or replace ONLY words that are judgments, evaluations, or assumptions
+- Keep all observable facts and specific behaviors
+- The neutralized version should be similar in length to the original
+- Do NOT simplify or summarize — just replace loaded words
+
+Example:
+Original: "He constantly interrupts female colleagues in a rude way"
+Good: "He interrupts female colleagues during meetings"
+Bad: "He speaks while others are speaking" (too simplified)
+
+Please respond with ONLY valid JSON (no markdown, no extra text), exactly in this format:
+{
+  "problematic_words": ["word1", "word2", "word3"],
+  "neutralized_text": "the rewritten text with neutral language",
+  "explanation": "brief explanation of changes"
+}`,
+            },
+          ],
+        }),
+        signal: neutralizeAbortController.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      // Handle different HTTP error statuses
+      if (!response.ok) {
+        const errorBody = await response.text()
+        let errorMessage = 'Something went wrong. Please try again.'
+
+        if (response.status === 401) {
+          errorMessage = 'Your API key seems invalid. Check your key in the settings.'
+          console.error('[Neutralize - 401 Unauthorized]', {
+            status: response.status,
+            statusText: response.statusText,
+            body: errorBody,
+            timestamp: new Date().toISOString(),
+          })
+        } else if (response.status === 429) {
+          errorMessage = 'Too many requests. Wait a moment and try again.'
+          console.error('[Neutralize - 429 Rate Limited]', {
+            status: response.status,
+            statusText: response.statusText,
+            body: errorBody,
+            timestamp: new Date().toISOString(),
+          })
+        } else {
+          // For other errors, try to extract error message from body
+          try {
+            const errorJson = JSON.parse(errorBody)
+            if (errorJson.error?.message) {
+              errorMessage = errorJson.error.message
+            }
+          } catch {
+            // If not JSON, use status text
+            errorMessage = `API Error ${response.status}: ${response.statusText}`
+          }
+          console.error('[Neutralize - API Error]', {
+            status: response.status,
+            statusText: response.statusText,
+            body: errorBody,
+            timestamp: new Date().toISOString(),
+          })
+        }
+
+        return { error: errorMessage }
+      }
+
+      const data = await response.json()
+      const responseText = data.content[0].text
+
+      try {
+        // Strip markdown code fences if present
+        const cleanJson = responseText
+          .replace(/```json\n?/g, '')
+          .replace(/```\n?/g, '')
+          .trim()
+        
+        // Parse JSON response
+        const parsed = JSON.parse(cleanJson)
+        return {
+          problematicWords: parsed.problematic_words || [],
+          neutralizedText: parsed.neutralized_text || '',
+          explanation: parsed.explanation || '',
+        }
+      } catch (parseError) {
+        console.error('[Neutralize - JSON Parse Error]', {
+          error: parseError.message,
+          responseText: responseText,
+          timestamp: new Date().toISOString(),
+        })
+        return { error: 'Something went wrong with the analysis. Please try again.' }
+      }
+    } catch (error) {
+      clearTimeout(timeoutId)
+
+      let errorMessage = 'Something went wrong. Please try again.'
+
+      // Handle timeout
+      if (error.name === 'AbortError') {
+        errorMessage = 'Analysis is taking too long. Try with a shorter text.'
+        console.error('[Neutralize - Timeout (>15s)]', {
+          error: error.message,
+          timestamp: new Date().toISOString(),
+        })
+      }
+      // Handle network errors
+      else if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        errorMessage = 'Could not reach the API. Check your internet connection.'
+        console.error('[Neutralize - Network Error]', {
+          error: error.message,
+          stack: error.stack,
+          timestamp: new Date().toISOString(),
+        })
+      }
+      // Handle other errors
+      else {
+        console.error('[Neutralize - Unexpected Error]', {
+          error: error.message,
+          stack: error.stack,
+          timestamp: new Date().toISOString(),
+        })
+      }
+
+      return { error: errorMessage }
+    }
+  }
+
   const handleFollowUp = async (userMessage) => {
     if (!apiKey || !feedbackData) return
 
@@ -290,6 +453,7 @@ export default function App() {
               initialData={formInitialData}
               selectedLanguage={selectedLanguage}
               onLanguageChange={handleLanguageChange}
+              onNeutralize={handleNeutralize}
             />
           </div>
           {feedbackData && (
