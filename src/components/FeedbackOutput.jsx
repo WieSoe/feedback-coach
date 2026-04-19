@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2 } from 'lucide-react'
+import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2, AlertTriangle } from 'lucide-react'
 import '../styles/FeedbackOutput.css'
 
 const FRAMEWORK_LABELS = {
@@ -19,13 +20,28 @@ export default function FeedbackOutput({
   onFollowUp,
   onReset,
   selectedLanguage,
+  advancedMode = false,
 }) {
   const isSelf = data.framework === 'self'
   const isManagerReport = data.situationType === 'Feedback about someone to their Manager'
   const isArabic = selectedLanguage === 'العربية'
   const frameworkLabel = FRAMEWORK_LABELS[data.framework] ?? data.framework
+  const isWritten = data.outputFormat === 'written'
   const [input, setInput] = useState('')
+  const [editableText, setEditableText] = useState(data.generatedFeedback)
   const messagesEndRef = useRef(null)
+  const textareaRef = useRef(null)
+
+  useEffect(() => {
+    setEditableText(data.generatedFeedback)
+  }, [data.generatedFeedback])
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px'
+    }
+  }, [editableText])
 
   const extractTrailingNote = (content) => {
     if (typeof content !== 'string') {
@@ -67,7 +83,8 @@ export default function FeedbackOutput({
   }, [chatHistory])
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(data.generatedFeedback)
+    const text = isWritten ? editableText : data.generatedFeedback
+    navigator.clipboard.writeText(text)
     alert('Copied to clipboard!')
   }
 
@@ -101,6 +118,25 @@ export default function FeedbackOutput({
       </button>
       <h2><Lightbulb style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px', width: '24px', height: '24px', color: '#1a1a1a' }} /> Your Feedback Preparation</h2>
 
+      <div style={{
+        background: '#fef3c7',
+        border: '0.5px solid #d97706',
+        borderRadius: '8px',
+        padding: '12px 16px',
+        marginBottom: '16px',
+        display: 'flex',
+        gap: '10px',
+        alignItems: 'flex-start',
+        fontSize: '13px',
+        color: '#92400e',
+      }}>
+        <AlertTriangle size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+        <span>
+          This is AI-generated. Always review before sending or using.
+          It does not replace your own judgment and knowledge of the situation.
+        </span>
+      </div>
+
       <div className="output-meta">
         <p><strong>Framework:</strong> {frameworkLabel}</p>
         {isSelf ? (
@@ -116,23 +152,46 @@ export default function FeedbackOutput({
         dir={isArabic ? 'rtl' : 'ltr'}
         style={{ textAlign: isArabic ? 'right' : 'left' }}
       >
-        <div className="markdown-output">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{mainFeedback || data.generatedFeedback}</ReactMarkdown>
-          {trailingNote && (
-            <div className="output-warning-box">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{trailingNote}</ReactMarkdown>
-            </div>
-          )}
-        </div>
+        {isWritten ? (
+          <>
+            <label htmlFor="written-output-textarea" className="sr-only">Editable written feedback</label>
+            <textarea
+              id="written-output-textarea"
+              ref={textareaRef}
+              className="written-output-textarea"
+              value={editableText}
+              onChange={(e) => setEditableText(e.target.value)}
+              maxLength={5000}
+              aria-describedby="written-output-limit"
+            />
+            <p id="written-output-limit" className="char-counter" aria-live="polite">
+              {editableText.length} / 5000 characters
+            </p>
+          </>
+        ) : (
+          <div className="markdown-output">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{mainFeedback || data.generatedFeedback}</ReactMarkdown>
+            {trailingNote && (
+              <div className="output-warning-box">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{trailingNote}</ReactMarkdown>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="output-actions">
         <button className="primary" onClick={copyToClipboard}>
           <Copy style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Copy to Clipboard
         </button>
+        {isWritten && (
+          <button className="primary" onClick={() => onReset && onReset('regenerate')} style={{ marginLeft: '8px' }}>
+            <RotateCcw style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Regenerate
+          </button>
+        )}
       </div>
 
-      {!isManagerReport && (
+      {!isManagerReport && !isWritten && (
         <div className="tips-box">
           <h4><MessageSquare style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Tips for the Conversation</h4>
           <ul>
@@ -145,6 +204,7 @@ export default function FeedbackOutput({
         </div>
       )}
 
+      {!isWritten && advancedMode && (
       <div className="chat-section" aria-label="Follow-up conversation">
         <h3>🗨️ Refine or Practice</h3>
 
@@ -205,6 +265,29 @@ export default function FeedbackOutput({
           </button>
         </form>
       </div>
+      )}
     </div>
   )
+}
+
+FeedbackOutput.propTypes = {
+  data: PropTypes.shape({
+    framework: PropTypes.string.isRequired,
+    situationType: PropTypes.string,
+    recipient: PropTypes.string,
+    topic: PropTypes.string,
+    generatedFeedback: PropTypes.string.isRequired,
+    outputFormat: PropTypes.oneOf(['conversation', 'written']),
+  }).isRequired,
+  chatHistory: PropTypes.arrayOf(
+    PropTypes.shape({
+      role: PropTypes.string.isRequired,
+      content: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  chatLoading: PropTypes.bool.isRequired,
+  onFollowUp: PropTypes.func.isRequired,
+  onReset: PropTypes.func.isRequired,
+  selectedLanguage: PropTypes.string.isRequired,
+  advancedMode: PropTypes.bool,
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 import '../styles/ApiKeySetup.css'
 
 export default function ApiKeySetup({ onSubmit }) {
@@ -74,7 +75,7 @@ export default function ApiKeySetup({ onSubmit }) {
             </a>
           </p>
           <p id="api-key-warning" className="api-key-warning">
-            Your key is stored locally. Avoid using on shared or public computers.
+            Your key is stored locally in your browser. Avoid using on shared or public computers.
           </p>
         </div>
 
@@ -94,4 +95,8 @@ export default function ApiKeySetup({ onSubmit }) {
       </div>
     </div>
   )
+}
+
+ApiKeySetup.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
 }

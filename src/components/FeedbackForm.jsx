@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { PenLine, Zap, Sparkles, Loader2 } from 'lucide-react'
+import PropTypes from 'prop-types'
+import { PenLine, Zap, Sparkles, Loader2, MessageSquare } from 'lucide-react'
 import '../styles/FeedbackForm.css'
 
 const FRAMEWORKS = [
@@ -59,13 +60,20 @@ const OUTPUT_LANGUAGES = [
   'العربية',
 ]
 
+const ADVANCED_BANNER_DISMISSED_KEY = 'feedback_coach_advanced_banner_dismissed'
+
 export default function FeedbackForm({
   onSubmit,
   loading,
-  initialData,
+  privacyMode = false,
+  advancedMode = false,
+  onAdvancedModeChange,
+  initialData = null,
   selectedLanguage,
   onLanguageChange,
   onNeutralize,
+  onOutputFormatChange,
+  onFrameworkChange,
 }) {
   const [formData, setFormData] = useState({
     framework: 'sbi',
@@ -74,6 +82,7 @@ export default function FeedbackForm({
     topic: '',
     description: '',
     unmetNeed: '',
+    outputFormat: 'conversation',
   })
   const [neutralized, setNeutralized] = useState(null)
   const [neutralizingLoading, setNeutralizingLoading] = useState(false)
@@ -82,11 +91,19 @@ export default function FeedbackForm({
   const [showDefuseRecommendation, setShowDefuseRecommendation] = useState(true)
   const [defuseSkipped, setDefuseSkipped] = useState(false)
   const [defuseCompleted, setDefuseCompleted] = useState(false)
+  const [advancedBannerDismissed, setAdvancedBannerDismissed] = useState(() => {
+    return localStorage.getItem(ADVANCED_BANNER_DISMISSED_KEY) === 'true'
+  })
 
   const isSelf = formData.framework === 'self'
   const isManagerAboutSomeone = formData.situationType === 'Feedback about someone to their Manager'
-  const defuseResult = neutralized
-  const canGenerateManagerFeedback = defuseSkipped || defuseCompleted || Boolean(defuseResult)
+  const canGenerateManagerFeedback = defuseSkipped || defuseCompleted
+
+  const BASIC_FRAMEWORK_IDS = ['sbi', 'radical']
+  const visibleFrameworks = advancedMode
+    ? FRAMEWORKS
+    : FRAMEWORKS.filter((fw) => BASIC_FRAMEWORK_IDS.includes(fw.id))
+  const BASIC_SITUATION_TYPES = SITUATION_TYPES.filter((t) => t !== 'Feedback about someone to their Manager')
 
   useEffect(() => {
     if (isManagerAboutSomeone) {
@@ -94,6 +111,29 @@ export default function FeedbackForm({
       setDefuseSkipped(false)
     }
   }, [isManagerAboutSomeone])
+
+  useEffect(() => {
+    if (isSelf && formData.outputFormat !== 'conversation') {
+      setFormData((prev) => ({ ...prev, outputFormat: 'conversation' }))
+      onOutputFormatChange?.('conversation')
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSelf])
+
+  useEffect(() => {
+    if (!advancedMode) {
+      // If unsupported framework selected, reset to sbi
+      if (!BASIC_FRAMEWORK_IDS.includes(formData.framework)) {
+        setFormData((prev) => ({ ...prev, framework: 'sbi' }))
+        onFrameworkChange?.('sbi')
+      }
+      // If manager situation selected, reset to first basic type
+      if (formData.situationType === 'Feedback about someone to their Manager') {
+        setFormData((prev) => ({ ...prev, situationType: 'Feedback to my Report' }))
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [advancedMode])
 
   useEffect(() => {
     if (!initialData) return
@@ -189,15 +229,45 @@ export default function FeedbackForm({
       setNeutralized(null)
       setNeutralizeError(null)
       onSubmit(formData)
+    } else {
+      if (!recipientOk) alert('Please enter a recipient.')
+      else if (!formData.topic.trim()) alert('Please enter a topic.')
+      else if (!formData.description.trim()) alert('Please describe what happened.')
     }
   }
 
   return (
     <div className="feedback-form card">
-      <h2 className="feedback-form-title">
-        <PenLine width={28} height={28} />
-        <span>Prepare Your Feedback</span>
-      </h2>
+      <div className="feedback-form-header">
+        <h2 className="feedback-form-title">
+          <PenLine width={20} height={20} style={{ flexShrink: 0 }} />
+          <span>Prepare Your Feedback</span>
+        </h2>
+        <button
+          type="button"
+          className={`advanced-mode-toggle ${advancedMode ? 'toggle-btn-active' : 'toggle-btn-inactive'}`}
+          aria-pressed={advancedMode}
+          aria-label={advancedMode ? 'Disable Advanced Mode' : 'Enable Advanced Mode'}
+          onClick={() => onAdvancedModeChange?.(!advancedMode)}
+        >
+          <Zap size={16} style={{ flexShrink: 0 }} />
+          <span>Advanced</span>
+        </button>
+      </div>
+      {advancedMode && !advancedBannerDismissed && (
+        <div className="advanced-mode-banner">
+          <span>For experienced communicators and leaders — additional frameworks and tools for nuanced, high-stakes conversations.</span>
+          <button
+            type="button"
+            className="advanced-mode-banner-dismiss"
+            aria-label="Dismiss"
+            onClick={() => {
+              setAdvancedBannerDismissed(true)
+              localStorage.setItem(ADVANCED_BANNER_DISMISSED_KEY, 'true')
+            }}
+          >✕</button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="form-group output-language-group">
@@ -218,6 +288,46 @@ export default function FeedbackForm({
           <p id="output-language-hint" className="output-language-hint">You can write your input in any language.</p>
         </div>
 
+        {!isSelf && <div className="form-group">
+          <label id="output-format-label">What do you need?</label>
+          <div className="output-format-pills" role="group" aria-labelledby="output-format-label">
+            <button
+              type="button"
+              className={`output-format-pill${formData.outputFormat === 'conversation' ? ' output-format-pill--active' : ''}`}
+              aria-pressed={formData.outputFormat === 'conversation'}
+              onClick={() => {
+                setFormData((prev) => ({ ...prev, outputFormat: 'conversation' }))
+                setDefuseSkipped(false)
+                setDefuseCompleted(false)
+                setNeutralized(null)
+                onOutputFormatChange?.('conversation')
+              }}
+            >
+              <span className="output-format-pill-main">
+                <MessageSquare size={16} className="output-format-pill-icon" />
+                Conversation guide
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`output-format-pill${formData.outputFormat === 'written' ? ' output-format-pill--active' : ''}`}
+              aria-pressed={formData.outputFormat === 'written'}
+              onClick={() => {
+                setFormData((prev) => ({ ...prev, outputFormat: 'written' }))
+                setDefuseSkipped(false)
+                setDefuseCompleted(false)
+                setNeutralized(null)
+                onOutputFormatChange?.('written')
+              }}
+            >
+              <span className="output-format-pill-main">
+                <PenLine size={16} className="output-format-pill-icon" />
+                Written feedback
+              </span>
+            </button>
+          </div>
+        </div>}
+
         {isManagerAboutSomeone ? (
           <div className="self-intro-box">
             This type of feedback requires factual, neutral observations.
@@ -231,14 +341,17 @@ export default function FeedbackForm({
           <div className="form-group">
             <label id="framework-label">Framework</label>
             <div className="framework-pills" role="group" aria-labelledby="framework-label">
-              {FRAMEWORKS.map((fw) => (
+              {visibleFrameworks.map((fw) => (
                 <button
                   key={fw.id}
                   type="button"
                   aria-label={`${fw.name}: ${fw.description}`}
                   aria-pressed={formData.framework === fw.id}
                   className={`pill${formData.framework === fw.id ? ' pill-active' : ''}`}
-                  onClick={() => setFormData((prev) => ({ ...prev, framework: fw.id }))}
+                  onClick={() => {
+                    setFormData((prev) => ({ ...prev, framework: fw.id }))
+                    onFrameworkChange?.(fw.id)
+                  }}
                 >
                   {fw.name}
                 </button>
@@ -272,7 +385,7 @@ export default function FeedbackForm({
                 value={formData.situationType}
                 onChange={handleChange}
               >
-                {SITUATION_TYPES.map((type) => (
+                {(advancedMode ? SITUATION_TYPES : BASIC_SITUATION_TYPES).map((type) => (
                   <option key={type} value={type}>
                     {type}
                   </option>
@@ -310,6 +423,15 @@ export default function FeedbackForm({
             placeholder={isSelf ? 'e.g., A colleague interrupted me, I felt dismissed in a meeting...' : 'e.g., Code quality, Communication, Deadline missed'}
             autoComplete="off"
           />
+          {isSelf && (
+            <div className="self-negotiation-hint">
+              Once you know your unmet need, you can negotiate from interests — not positions.
+              Instead of <em>&ldquo;I want you to stop interrupting me&rdquo;</em> (position), you can say{' '}
+              <em>&ldquo;I need to feel heard in meetings&rdquo;</em> (interest).
+              Interests are negotiable — positions create conflict.<br />
+              <span className="self-negotiation-hint-source">Based on the Harvard Negotiation Method by Fisher &amp; Ury.</span>
+            </div>
+          )}
         </div>
 
         <div className="form-group">
@@ -329,7 +451,7 @@ export default function FeedbackForm({
             }
           />
           
-          {isManagerAboutSomeone && (
+          {isManagerAboutSomeone && advancedMode && (
             <>
               <button
                 type="button"
@@ -354,7 +476,7 @@ export default function FeedbackForm({
                 ) : (
                   <>
                     <Zap style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
-                    Defuse my words
+                    Defuse my language
                   </>
                 )}
               </button>
@@ -370,9 +492,15 @@ export default function FeedbackForm({
                 
                 {showNeutralizationExplanation && (
                   <div className="neutralization-explanation">
-                    <p>When we're emotionally charged, our language often contains evaluations ('he's lazy'), generalizations ('always', 'never'), or assumptions ('he doesn't care'). This triggers defensiveness in the other person — they react to your words instead of hearing your concern.</p>
-                    <p>Neutral, observation-based language ('In the last 3 meetings, the deliverable was late') opens dialogue instead of closing it.</p>
-                    <p><em>Based on Nonviolent Communication by Marshall B. Rosenberg.</em></p>
+                    <p><strong>Why defuse your language?</strong></p>
+                    <p>When we're emotionally charged, our descriptions often contain evaluative or loaded language - words like 'always', 'never', 'unprofessional', or stronger labels.</p>
+                    <p>Even if Claude neutralizes your feedback in the output, understanding your own language patterns is valuable:</p>
+                    <p>→ You learn to distinguish observations from judgments<br />
+                    → You become more aware of your emotional triggers<br />
+                    → You build a habit of factual, neutral communication<br />
+                    → Next time, you'll write it neutrally from the start</p>
+                    <p>This is also a learning tool - not just a text cleaner.<br />
+                    <em>Based on Nonviolent Communication by Marshall B. Rosenberg.</em></p>
                   </div>
                 )}
               </div>
@@ -429,7 +557,7 @@ export default function FeedbackForm({
           <p className="char-counter">{formData.description.length} / 2000 characters</p>
         </div>
 
-        {isManagerAboutSomeone && showDefuseRecommendation && (
+        {isManagerAboutSomeone && advancedMode && showDefuseRecommendation && (
           <div className="defuse-recommendation-note">
             <p>
               We recommend defusing your language before generating. This helps ensure your feedback is factual and neutral.
@@ -464,7 +592,33 @@ export default function FeedbackForm({
               </>
             ) : <><Sparkles style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Generate Feedback Preparation</>}
         </button>
+        {privacyMode && (
+          <p className="privacy-session-reminder">Privacy mode is on — this session will not be saved.</p>
+        )}
       </form>
     </div>
   )
+}
+
+FeedbackForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
+  privacyMode: PropTypes.bool,
+  advancedMode: PropTypes.bool,
+  onAdvancedModeChange: PropTypes.func,
+  initialData: PropTypes.shape({
+    framework: PropTypes.string,
+    situationType: PropTypes.string,
+    recipient: PropTypes.string,
+    topic: PropTypes.string,
+    description: PropTypes.string,
+    unmetNeed: PropTypes.string,
+    outputFormat: PropTypes.oneOf(['conversation', 'written']),
+    outputLanguage: PropTypes.string,
+  }),
+  selectedLanguage: PropTypes.string.isRequired,
+  onLanguageChange: PropTypes.func.isRequired,
+  onNeutralize: PropTypes.func.isRequired,
+  onOutputFormatChange: PropTypes.func,
+  onFrameworkChange: PropTypes.func,
 }

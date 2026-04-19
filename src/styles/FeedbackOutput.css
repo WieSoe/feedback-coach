@@ -278,3 +278,27 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.written-output-textarea {
+  width: 100%;
+  min-height: 200px;
+  height: auto;
+  resize: none;
+  overflow: hidden;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #111827;
+  background: #ffffff;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.written-output-textarea:focus {
+  outline: none;
+  border-color: #185FA5;
+  box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.1);
+}
