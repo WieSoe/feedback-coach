@@ -156,6 +156,16 @@ export default function App() {
             Source on GitHub
           </a>
         </p>
+        <p>
+          <a
+            className="app-footer-link"
+            href="https://buymeacoffee.com/wiesoe"
+            target="_blank"
+            rel="noreferrer"
+          >
+            If this eased a difficult conversation for you — buy me a coffee ☕
+          </a>
+        </p>
       </footer>
     </div>
   )

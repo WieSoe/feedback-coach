@@ -55,6 +55,8 @@ export default function ApiKeySetup({ onSubmit }) {
               maxLength={500}
               placeholder="sk-ant-..."
               autoComplete="off"
+              aria-describedby="api-key-help api-key-warning"
+              required
             />
             <button
               type="button"
@@ -65,13 +67,13 @@ export default function ApiKeySetup({ onSubmit }) {
               {showKey ? 'Hide' : 'Show'}
             </button>
           </div>
-          <p className="api-key-help">
+          <p id="api-key-help" className="api-key-help">
             Don't have an API key?{' '}
             <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer">
               Get one here
             </a>
           </p>
-          <p className="api-key-warning">
+          <p id="api-key-warning" className="api-key-warning">
             Your key is stored locally. Avoid using on shared or public computers.
           </p>
         </div>
