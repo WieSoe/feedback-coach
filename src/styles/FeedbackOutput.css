@@ -201,6 +201,21 @@
   margin-bottom: 16px;
 }
 
+.chat-disabled-message {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.chat-disabled-message p {
+  margin: 0;
+}
+
 .chat-messages {
   display: flex;
   flex-direction: column;

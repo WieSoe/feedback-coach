@@ -1,5 +1,4 @@
 .api-setup {
-  max-width: 100%;
   text-align: left;
 }
 
@@ -176,4 +175,31 @@
 
 .api-setup .primary {
   text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.demo-mode-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.demo-mode-section .secondary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.api-setup-form button.primary {
+  height: 44px;
+  padding: 0 16px;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
 }

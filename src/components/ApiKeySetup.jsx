@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
+import { Sparkles, Eye } from 'lucide-react'
 import '../styles/ApiKeySetup.css'
 
-export default function ApiKeySetup({ onSubmit }) {
+export default function ApiKeySetup({ onSubmit, onDemoMode }) {
   const [key, setKey] = useState('')
   const [showKey, setShowKey] = useState(false)
 
@@ -16,7 +17,7 @@ export default function ApiKeySetup({ onSubmit }) {
   return (
     <div className="api-setup card">
       <div className="api-setup-header">
-        <h2>Set up your API key</h2>
+        <h2 className="api-setup-heading" tabIndex={-1}>Set up your API key</h2>
         <p className="subtitle">
           Enter your Anthropic API key to get started. Your key stays in your browser and is never sent to our servers.
         </p>
@@ -79,10 +80,25 @@ export default function ApiKeySetup({ onSubmit }) {
           </p>
         </div>
 
-        <button type="submit" className="primary">
-          Start Using Feedback Coach
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <button type="submit" className="primary" style={{ width: 'auto' }}>
+            <Sparkles size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
+            Start Using Feedback Coach
+          </button>
+        </div>
       </form>
+
+      <div className="demo-mode-section">
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => onDemoMode?.()}
+          aria-label="Enter demo mode to see how it works"
+        >
+          <Eye size={16} style={{ flexShrink: 0 }} />
+          <span>See how it works first</span>
+        </button>
+      </div>
 
       <div className="info-box">
         <h3>How it works</h3>
@@ -99,4 +115,5 @@ export default function ApiKeySetup({ onSubmit }) {
 
 ApiKeySetup.propTypes = {
   onSubmit: PropTypes.func.isRequired,
+  onDemoMode: PropTypes.func,
 }

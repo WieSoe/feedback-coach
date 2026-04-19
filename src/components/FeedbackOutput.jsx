@@ -21,6 +21,7 @@ export default function FeedbackOutput({
   onReset,
   selectedLanguage,
   advancedMode = false,
+  isDemoMode = false,
 }) {
   const isSelf = data.framework === 'self'
   const isManagerReport = data.situationType === 'Feedback about someone to their Manager'
@@ -205,66 +206,75 @@ export default function FeedbackOutput({
       )}
 
       {!isWritten && advancedMode && (
-      <div className="chat-section" aria-label="Follow-up conversation">
-        <h3>🗨️ Refine or Practice</h3>
-
-        <div
-          className="chat-messages"
-          role="log"
-          aria-live="polite"
-          aria-label="Chat messages"
-        >
-          {chatHistory.map((msg, idx) => (
-            <div key={idx} className={`chat-bubble chat-bubble--${msg.role}`}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+        isDemoMode ? (
+          <div className="chat-section" aria-label="Follow-up chat disabled in demo">
+            <h3>🗨️ Refine or Practice</h3>
+            <div className="chat-disabled-message">
+              <p>Add your API key to use the follow-up chat</p>
             </div>
-          ))}
-          {chatLoading && (
-            <div className="chat-bubble chat-bubble--assistant chat-bubble--loading" aria-busy="true">
-              Thinking…
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
+          </div>
+        ) : (
+          <div className="chat-section" aria-label="Follow-up conversation">
+            <h3>🗨️ Refine or Practice</h3>
 
-        <form className="chat-input-row" onSubmit={handleSend}>
-          <label htmlFor="chat-input" className="sr-only">Follow-up message</label>
-          <textarea
-            id="chat-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            maxLength={2000}
-            placeholder="Ask a follow-up… e.g. 'What if they react defensively?' or 'Make it more direct'"
-            disabled={chatLoading}
-            className="chat-textarea"
-          />
-          <button
-            type="submit"
-            className="chat-send-btn"
-            aria-label="Send follow-up message"
-            disabled={chatLoading || !input.trim()}
-          >
-            {chatLoading ? (
-              <>
-                <Loader2
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    marginRight: '6px',
-                    display: 'inline',
-                    verticalAlign: 'middle',
-                    animation: 'spin 1s linear infinite',
-                  }}
-                />
-                Sending...
-              </>
-            ) : (
-              'Send'
-            )}
-          </button>
-        </form>
-      </div>
+            <div
+              className="chat-messages"
+              role="log"
+              aria-live="polite"
+              aria-label="Chat messages"
+            >
+              {chatHistory.map((msg, idx) => (
+                <div key={idx} className={`chat-bubble chat-bubble--${msg.role}`}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                </div>
+              ))}
+              {chatLoading && (
+                <div className="chat-bubble chat-bubble--assistant chat-bubble--loading" aria-busy="true">
+                  Thinking…
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <form className="chat-input-row" onSubmit={handleSend}>
+              <label htmlFor="chat-input" className="sr-only">Follow-up message</label>
+              <textarea
+                id="chat-input"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                maxLength={2000}
+                placeholder="Ask a follow-up… e.g. 'What if they react defensively?' or 'Make it more direct'"
+                disabled={chatLoading}
+                className="chat-textarea"
+              />
+              <button
+                type="submit"
+                className="chat-send-btn"
+                aria-label="Send follow-up message"
+                disabled={chatLoading || !input.trim()}
+              >
+                {chatLoading ? (
+                  <>
+                    <Loader2
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        marginRight: '6px',
+                        display: 'inline',
+                        verticalAlign: 'middle',
+                        animation: 'spin 1s linear infinite',
+                      }}
+                    />
+                    Sending...
+                  </>
+                ) : (
+                  'Send'
+                )}
+              </button>
+            </form>
+          </div>
+        )
       )}
     </div>
   )
@@ -290,4 +300,5 @@ FeedbackOutput.propTypes = {
   onReset: PropTypes.func.isRequired,
   selectedLanguage: PropTypes.string.isRequired,
   advancedMode: PropTypes.bool,
+  isDemoMode: PropTypes.bool,
 }

@@ -74,6 +74,7 @@ export default function FeedbackForm({
   onNeutralize,
   onOutputFormatChange,
   onFrameworkChange,
+  isDemoMode = false,
 }) {
   const [formData, setFormData] = useState({
     framework: 'sbi',
@@ -590,7 +591,10 @@ export default function FeedbackForm({
                 />
                 Generating...
               </>
-            ) : <><Sparkles style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Generate Feedback Preparation</>}
+            ) : <>
+              <Sparkles style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
+              {isDemoMode ? 'Regenerate demo' : 'Generate Feedback Preparation'}
+            </>}
         </button>
         {privacyMode && (
           <p className="privacy-session-reminder">Privacy mode is on — this session will not be saved.</p>
@@ -621,4 +625,5 @@ FeedbackForm.propTypes = {
   onNeutralize: PropTypes.func.isRequired,
   onOutputFormatChange: PropTypes.func,
   onFrameworkChange: PropTypes.func,
+  isDemoMode: PropTypes.bool,
 }
