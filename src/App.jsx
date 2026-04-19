@@ -1,8 +1,35 @@
 import { useState } from 'react'
 import FeedbackForm from './components/FeedbackForm'
 import FeedbackOutput from './components/FeedbackOutput'
+import FeedbackHistory from './components/FeedbackHistory'
 import ApiKeySetup from './components/ApiKeySetup'
 import './App.css'
+
+const HISTORY_STORAGE_KEY = 'feedback_history'
+
+const loadHistory = () => {
+  try {
+    const raw = localStorage.getItem(HISTORY_STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+const saveHistory = (history) => {
+  localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history))
+}
+
+const DEFAULT_FORM_DATA = {
+  framework: 'sbi',
+  situationType: 'Feedback to my Report',
+  recipient: '',
+  topic: '',
+  description: '',
+  unmetNeed: '',
+}
 
 export default function App() {
   const [apiKey, setApiKey] = useState(localStorage.getItem('anthropic_api_key') || '')
@@ -10,6 +37,9 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [chatHistory, setChatHistory] = useState([])
   const [chatLoading, setChatLoading] = useState(false)
+  const [feedbackHistory, setFeedbackHistory] = useState(loadHistory)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [formInitialData, setFormInitialData] = useState(null)
 
   const handleApiKeySubmit = (key) => {
     setApiKey(key)
@@ -60,6 +90,24 @@ export default function App() {
         generatedFeedback: content,
       })
       setChatHistory([])
+
+      const now = Date.now()
+      const historyEntry = {
+        id: now,
+        date: new Date(now).toLocaleString(),
+        framework: formData.framework,
+        recipient: formData.framework === 'self' ? 'Myself' : formData.recipient,
+        topic: formData.topic,
+        generatedFeedback: content,
+        situationType: formData.situationType,
+        description: formData.description,
+      }
+
+      setFeedbackHistory((prev) => {
+        const next = [historyEntry, ...prev].slice(0, 10)
+        saveHistory(next)
+        return next
+      })
     } catch (error) {
       console.error('Anthropic API request failed:', error)
 
@@ -71,6 +119,45 @@ export default function App() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleLoadHistoryEntry = (entry) => {
+    setFeedbackData({
+      framework: entry.framework,
+      recipient: entry.recipient === 'Myself' ? '' : entry.recipient,
+      topic: entry.topic,
+      generatedFeedback: entry.generatedFeedback,
+      situationType: entry.situationType || 'Feedback to my Report',
+      description: entry.description || '',
+    })
+    setFormInitialData({
+      framework: entry.framework,
+      recipient: entry.recipient === 'Myself' ? '' : entry.recipient,
+      topic: entry.topic,
+      situationType: entry.situationType || 'Feedback to my Report',
+      description: entry.description || '',
+    })
+    setChatHistory([])
+  }
+
+  const handleDeleteHistoryEntry = (id) => {
+    setFeedbackHistory((prev) => {
+      const next = prev.filter((entry) => entry.id !== id)
+      saveHistory(next)
+      return next
+    })
+  }
+
+  const handleClearHistory = () => {
+    setFeedbackHistory([])
+    saveHistory([])
+  }
+
+  const handleReset = () => {
+    setFeedbackData(null)
+    setChatHistory([])
+    setChatLoading(false)
+    setFormInitialData({ ...DEFAULT_FORM_DATA })
   }
 
   const handleFollowUp = async (userMessage) => {
@@ -130,13 +217,28 @@ export default function App() {
         <ApiKeySetup onSubmit={handleApiKeySubmit} />
       ) : (
         <div className="app-container">
-          <FeedbackForm onSubmit={handleGenerateFeedback} loading={loading} />
+          <div className="left-column">
+            <FeedbackHistory
+              entries={feedbackHistory}
+              isOpen={historyOpen}
+              onToggle={() => setHistoryOpen((prev) => !prev)}
+              onLoad={handleLoadHistoryEntry}
+              onDelete={handleDeleteHistoryEntry}
+              onClearAll={handleClearHistory}
+            />
+            <FeedbackForm
+              onSubmit={handleGenerateFeedback}
+              loading={loading}
+              initialData={formInitialData}
+            />
+          </div>
           {feedbackData && (
             <FeedbackOutput
               data={feedbackData}
               chatHistory={chatHistory}
               chatLoading={chatLoading}
               onFollowUp={handleFollowUp}
+              onReset={handleReset}
             />
           )}
         </div>
@@ -183,6 +285,12 @@ Your task:
 3. Identify 2-3 possible unmet NEEDS (from NVC needs inventory, e.g. respect, clarity, collaboration, autonomy, recognition)
 4. Suggest one gentle opening sentence they could use in a conversation, starting from their need — NOT from blame
 
+IMPORTANT: Only use information explicitly provided by the user.
+Do NOT invent, assume, or hallucinate specific details such as dates,
+times, names, frequencies, or situations that were not mentioned.
+If details are missing, use placeholders like [specific date] or
+[specific situation] instead.
+
 Be warm, non-judgmental, and concise.`
   }
 
@@ -202,6 +310,12 @@ Please provide a structured feedback preparation using the ${formData.framework}
 2. **Core Message**: The main feedback structured according to the framework
 3. **Potential Reactions**: What the recipient might say/feel
 4. **Closing**: How to end constructively
+
+IMPORTANT: Only use information explicitly provided by the user.
+Do NOT invent, assume, or hallucinate specific details such as dates,
+times, names, frequencies, or situations that were not mentioned.
+If details are missing, use placeholders like [specific date] or
+[specific situation] instead.
 
 Make it practical, empathetic, but honest. Keep it concise and actionable.`
 }

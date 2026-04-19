@@ -28,6 +28,11 @@
   margin: 0 auto;
 }
 
+.left-column {
+  display: flex;
+  flex-direction: column;
+}
+
 @media (max-width: 768px) {
   .app-container {
     grid-template-columns: 1fr;

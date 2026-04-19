@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import '../styles/FeedbackOutput.css'
 
 const FRAMEWORK_LABELS = {
@@ -10,7 +11,7 @@ const FRAMEWORK_LABELS = {
   self: 'Self-Clarification',
 }
 
-export default function FeedbackOutput({ data, chatHistory, chatLoading, onFollowUp }) {
+export default function FeedbackOutput({ data, chatHistory, chatLoading, onFollowUp, onReset }) {
   const isSelf = data.framework === 'self'
   const frameworkLabel = FRAMEWORK_LABELS[data.framework] ?? data.framework
   const [input, setInput] = useState('')
@@ -45,6 +46,14 @@ export default function FeedbackOutput({ data, chatHistory, chatLoading, onFollo
 
   return (
     <div className="feedback-output card">
+      <button
+        type="button"
+        className="output-reset-btn"
+        onClick={onReset}
+        aria-label="Start new feedback and clear current output"
+      >
+        ↩ Start new feedback
+      </button>
       <h2>💡 Your Feedback Preparation</h2>
 
       <div className="output-meta">
@@ -59,7 +68,7 @@ export default function FeedbackOutput({ data, chatHistory, chatLoading, onFollo
 
       <div className="output-content">
         <div className="markdown-output">
-          <ReactMarkdown>{data.generatedFeedback}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.generatedFeedback}</ReactMarkdown>
         </div>
       </div>
 
@@ -91,7 +100,7 @@ export default function FeedbackOutput({ data, chatHistory, chatLoading, onFollo
         >
           {chatHistory.map((msg, idx) => (
             <div key={idx} className={`chat-bubble chat-bubble--${msg.role}`}>
-              <ReactMarkdown>{msg.content}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
             </div>
           ))}
           {chatLoading && (

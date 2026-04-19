@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import '../styles/FeedbackForm.css'
 
 const FRAMEWORKS = [
@@ -35,15 +35,15 @@ const FRAMEWORKS = [
 ]
 
 const SITUATION_TYPES = [
+  'Feedback to a Peer',
   'Feedback to my Report',
   'Feedback to my Manager',
-  'Feedback to a Peer',
+  'Feedback about someone to their Manager',
   'Feedback for a Team Retrospective',
-  'Behavioral Feedback (Workplace)',
-  'Behavioral Feedback (Private)',
+  'Feedback in a Private Setting',
 ]
 
-export default function FeedbackForm({ onSubmit, loading }) {
+export default function FeedbackForm({ onSubmit, loading, initialData }) {
   const [formData, setFormData] = useState({
     framework: 'sbi',
     situationType: 'Feedback to my Report',
@@ -54,6 +54,15 @@ export default function FeedbackForm({ onSubmit, loading }) {
   })
 
   const isSelf = formData.framework === 'self'
+  const isManagerAboutSomeone = formData.situationType === 'Feedback about someone to their Manager'
+
+  useEffect(() => {
+    if (!initialData) return
+    setFormData((prev) => ({
+      ...prev,
+      ...initialData,
+    }))
+  }, [initialData])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -76,33 +85,41 @@ export default function FeedbackForm({ onSubmit, loading }) {
       <h2>📝 Prepare Your Feedback</h2>
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="form-group">
-          <label id="framework-label">Framework</label>
-          <div className="framework-pills" role="group" aria-labelledby="framework-label">
-            {FRAMEWORKS.map((fw) => (
-              <button
-                key={fw.id}
-                type="button"
-                aria-label={`${fw.name}: ${fw.description}`}
-                aria-pressed={formData.framework === fw.id}
-                className={`pill${formData.framework === fw.id ? ' pill-active' : ''}`}
-                onClick={() => setFormData((prev) => ({ ...prev, framework: fw.id }))}
-              >
-                {fw.name}
-              </button>
-            ))}
+        {isManagerAboutSomeone ? (
+          <div className="self-intro-box">
+            This type of feedback requires factual, neutral observations.
+            We'll help you structure what you've seen - without interpretation
+            or emotion. Stick to specific situations and behaviors.
           </div>
-          {(() => {
-            const active = FRAMEWORKS.find((fw) => fw.id === formData.framework)
-            return active ? (
-              <div className="framework-description" aria-live="polite">
-                <strong>{active.name}</strong><br />
-                {active.description}
-                {active.author && <span className="framework-author"> — {active.author}</span>}
-              </div>
-            ) : null
-          })()}
-        </div>
+        ) : (
+          <div className="form-group">
+            <label id="framework-label">Framework</label>
+            <div className="framework-pills" role="group" aria-labelledby="framework-label">
+              {FRAMEWORKS.map((fw) => (
+                <button
+                  key={fw.id}
+                  type="button"
+                  aria-label={`${fw.name}: ${fw.description}`}
+                  aria-pressed={formData.framework === fw.id}
+                  className={`pill${formData.framework === fw.id ? ' pill-active' : ''}`}
+                  onClick={() => setFormData((prev) => ({ ...prev, framework: fw.id }))}
+                >
+                  {fw.name}
+                </button>
+              ))}
+            </div>
+            {(() => {
+              const active = FRAMEWORKS.find((fw) => fw.id === formData.framework)
+              return active ? (
+                <div className="framework-description" aria-live="polite">
+                  <strong>{active.name}</strong><br />
+                  {active.description}
+                  {active.author && <span className="framework-author"> - {active.author}</span>}
+                </div>
+              ) : null
+            })()}
+          </div>
+        )}
 
         {isSelf ? (
           <div className="self-intro-box">
@@ -128,7 +145,9 @@ export default function FeedbackForm({ onSubmit, loading }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="recipient">Who is this for?</label>
+              <label htmlFor="recipient">
+                {isManagerAboutSomeone ? 'Who is this about?' : 'Who is this for?'}
+              </label>
               <input
                 id="recipient"
                 type="text"
@@ -165,7 +184,13 @@ export default function FeedbackForm({ onSubmit, loading }) {
             value={formData.description}
             onChange={handleChange}
             maxLength={2000}
-            placeholder={isSelf ? "Write freely. No judgment here. You can even say 'he's being an asshole' — we'll help you find what's really going on." : 'Describe the situation, behavior, or concern. Be specific and factual.'}
+            placeholder={
+              isSelf
+                ? "Write freely. No judgment here. You can even say 'he's being an asshole' - we'll help you find what's really going on."
+                : isManagerAboutSomeone
+                  ? 'Describe what you observed - specific situations, dates, behaviors. Avoid interpretations or emotions.'
+                  : 'Describe the situation, behavior, or concern. Be specific and factual.'
+            }
           />
           <p className="char-counter">{formData.description.length} / 2000 characters</p>
         </div>
