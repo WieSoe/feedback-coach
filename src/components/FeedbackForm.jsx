@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PenLine, Zap, Sparkles } from 'lucide-react'
+import { PenLine, Zap, Sparkles, Loader2 } from 'lucide-react'
 import '../styles/FeedbackForm.css'
 
 const FRAMEWORKS = [
@@ -80,13 +80,17 @@ export default function FeedbackForm({
   const [neutralizeError, setNeutralizeError] = useState(null)
   const [showNeutralizationExplanation, setShowNeutralizationExplanation] = useState(false)
   const [showDefuseRecommendation, setShowDefuseRecommendation] = useState(true)
+  const [defuseSkipped, setDefuseSkipped] = useState(false)
 
   const isSelf = formData.framework === 'self'
   const isManagerAboutSomeone = formData.situationType === 'Feedback about someone to their Manager'
+  const defuseResult = neutralized
+  const canGenerateManagerFeedback = defuseSkipped || Boolean(defuseResult)
 
   useEffect(() => {
     if (isManagerAboutSomeone) {
       setShowDefuseRecommendation(true)
+      setDefuseSkipped(false)
     }
   }, [isManagerAboutSomeone])
 
@@ -159,6 +163,12 @@ export default function FeedbackForm({
   const handleSubmit = (e) => {
     e.preventDefault()
     const recipientOk = isSelf || formData.recipient.trim()
+
+    if (isManagerAboutSomeone && !canGenerateManagerFeedback) {
+      setShowDefuseRecommendation(true)
+      return
+    }
+
     if (recipientOk && formData.topic.trim() && formData.description.trim()) {
       setNeutralized(null)
       setNeutralizeError(null)
@@ -312,7 +322,17 @@ export default function FeedbackForm({
                 disabled={neutralizingLoading}
               >
                 {neutralizingLoading ? (
-                  '⏳ Analyzing...'
+                  <>
+                    <Loader2
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        marginRight: '6px',
+                        animation: 'spin 1s linear infinite',
+                      }}
+                    />
+                    Analyzing...
+                  </>
                 ) : (
                   <>
                     <Zap style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
@@ -399,14 +419,17 @@ export default function FeedbackForm({
             <button
               type="button"
               className="defuse-recommendation-skip"
-              onClick={() => setShowDefuseRecommendation(false)}
+              onClick={() => {
+                setDefuseSkipped(true)
+                setShowDefuseRecommendation(false)
+              }}
             >
               Skip
             </button>
           </div>
         )}
 
-          <button type="submit" className="primary" disabled={loading}>
+          <button type="submit" className="primary" disabled={loading || (isManagerAboutSomeone && !canGenerateManagerFeedback)}>
             {loading ? '⏳ Generating...' : <><Sparkles style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Generate Feedback Preparation</>}
         </button>
       </form>
