@@ -45,3 +45,28 @@ Have an idea or found a bug? [Open an issue on GitHub](https://github.com/WieSoe
 
 © 2026 Wiebke Söhrens — CC BY-ND 4.0
 Use it freely, don't change it, credit me.
+
+---
+
+## Changelog
+
+### v1.1.0
+
+#### New Features
+- **"Defuse my words"** — highlights loaded language in red, suggests neutral alternatives based on NVC
+- **Feedback History** — last 10 sessions saved in browser
+- **Output in 10 languages** — auto-detected from browser
+- **Follow-up chat** — refine and practice after generation
+- **Reset button** — start fresh without page reload
+- **Lucide icons** — replaced all emojis with clean SVG icons
+
+#### Improvements
+- Anti-hallucination: Claude no longer invents dates or details
+- Markdown tables now render correctly
+- Accessibility audit passed
+- Consistent icon styling throughout
+
+#### Bug Fixes
+- Fixed scroll jump when loading from history
+- Fixed defuse flow blocking generation
+- Fixed JSON parsing errors
