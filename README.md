@@ -11,6 +11,8 @@ Choose between a conversation guide or written feedback
 (email, Slack, performance review), pick your framework, 
 describe the situation — and get a structured preparation in seconds.
 
+Try a demo first — no API key required. Once you're ready, add your API key to generate your own feedback preparation.
+
 ## How to use
 
 1. Open the app: https://feedback-coach-beta.vercel.app
@@ -33,15 +35,15 @@ describe the situation — and get a structured preparation in seconds.
 
 ## Features
 
-- Conversation Guide or Written Feedback output
-- Advanced Mode for experienced communicators and leaders
-- Defuse my language — neutralize loaded language before reporting
-- Self-Clarification with NVC needs inventory and Harvard Negotiation Method
-- Feedback History — last 10 sessions saved in your browser
-- Privacy Mode — disable history for sensitive sessions
-- Output in 10 languages, auto-detected from your browser
-- Follow-up chat to refine and practice
-- AI disclaimer on every output
+- **Demo Mode** — explore the app with example outputs before entering your API key
+- **Conversation Guide or Written Feedback** — choose your output format
+- **Advanced Mode** — unlock additional frameworks and tools for nuanced conversations
+- **"Defuse my words"** — highlights loaded language in red, suggests neutral alternatives based on NVC principles
+- **Feedback History** — last 10 sessions saved in browser, quickly access previous work
+- **Privacy Mode** — prevent sessions from being saved to history
+- **Output in 10 languages** — auto-detected from browser language
+- **Follow-up chat** — refine and practice after generation
+- **Reset button** — start fresh without page reload
 
 ## Why this exists
 
