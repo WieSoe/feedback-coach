@@ -25,6 +25,13 @@ export default function FeedbackHistory({ entries, isOpen, onToggle, onLoad, onD
         {isOpen ? `▾ History (${entries.length})` : `▸ History (${entries.length})`}
       </button>
 
+      {!isOpen && entries.length === 0 && (
+        <p className="history-intro-hint">
+          Your last 10 feedback sessions will be saved here automatically.
+          Only visible to you, stored in this browser.
+        </p>
+      )}
+
       {isOpen && (
         <>
           {entries.length === 0 ? (
