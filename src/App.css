@@ -4,7 +4,11 @@
 }
 
 .app-header {
-  margin-bottom: 32px;
+  background: #ffffff;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
 }
 
 .app-header h1 {
@@ -12,6 +16,12 @@
   font-weight: 700;
   color: #111827;
   margin-bottom: 6px;
+}
+
+.app-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .app-header p {
@@ -28,6 +38,12 @@
   margin: 0 auto;
 }
 
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 @media (max-width: 768px) {
   .app-container {
     grid-template-columns: 1fr;
@@ -39,7 +55,7 @@
   background: #ffffff;
   border-radius: 8px;
   border: 0.5px solid #e5e7eb;
-  padding: 24px;
+  padding: 28px;
 }
 
 /* ── Form layout ── */
@@ -60,6 +76,26 @@ form {
   font-weight: 500;
   color: #111827;
   font-size: 14px;
+}
+
+.toggle-btn-inactive {
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  background: #ffffff;
+}
+
+.toggle-btn-active {
+  border: 1px solid #185FA5;
+  color: #185FA5;
+  background: #eff6ff;
+}
+
+.toggle-btn-inactive:hover {
+  background: #f9fafb;
+}
+
+.toggle-btn-active:hover {
+  background: #e6f1fb;
 }
 
 .form-group input,
@@ -141,4 +177,13 @@ button.primary:disabled {
 
 .app-footer p + p {
   margin-top: 6px;
+}
+
+.app-footer-link {
+  color: #185FA5;
+  text-decoration: none;
+}
+
+.app-footer-link:hover {
+  text-decoration: underline;
 }
