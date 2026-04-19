@@ -328,6 +328,8 @@ export default function FeedbackForm({
                         width: '16px',
                         height: '16px',
                         marginRight: '6px',
+                        display: 'inline',
+                        verticalAlign: 'middle',
                         animation: 'spin 1s linear infinite',
                       }}
                     />
@@ -430,7 +432,21 @@ export default function FeedbackForm({
         )}
 
           <button type="submit" className="primary" disabled={loading || (isManagerAboutSomeone && !canGenerateManagerFeedback)}>
-            {loading ? '⏳ Generating...' : <><Sparkles style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Generate Feedback Preparation</>}
+            {loading ? (
+              <>
+                <Loader2
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    marginRight: '6px',
+                    display: 'inline',
+                    verticalAlign: 'middle',
+                    animation: 'spin 1s linear infinite',
+                  }}
+                />
+                Generating...
+              </>
+            ) : <><Sparkles style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Generate Feedback Preparation</>}
         </button>
       </form>
     </div>

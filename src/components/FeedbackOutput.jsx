@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Lightbulb, Copy, RotateCcw, MessageSquare } from 'lucide-react'
+import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2 } from 'lucide-react'
 import '../styles/FeedbackOutput.css'
 
 const FRAMEWORK_LABELS = {
@@ -179,7 +179,23 @@ export default function FeedbackOutput({
             aria-label="Send follow-up message"
             disabled={chatLoading || !input.trim()}
           >
-            Send
+            {chatLoading ? (
+              <>
+                <Loader2
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    marginRight: '6px',
+                    display: 'inline',
+                    verticalAlign: 'middle',
+                    animation: 'spin 1s linear infinite',
+                  }}
+                />
+                Sending...
+              </>
+            ) : (
+              'Send'
+            )}
           </button>
         </form>
       </div>
