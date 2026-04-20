@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2, AlertTriangle, Brain, Circle, Lock } from 'lucide-react'
+import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2, AlertTriangle, Brain, Circle, Lock, RefreshCw } from 'lucide-react'
 import '../styles/FeedbackOutput.css'
 
 const FRAMEWORK_LABELS = {
@@ -23,6 +23,7 @@ export default function FeedbackOutput({
   advancedMode = false,
   isDemoMode = false,
   apiKey,
+  languageChangedAfterGeneration = false,
 }) {
   const isSelf = data.framework === 'self'
   const isManagerReport = data.situationType === 'Feedback about someone to their Manager'
@@ -250,11 +251,33 @@ ${feedbackText}`,
         <p><strong>Topic:</strong> {data.topic}</p>
       </div>
 
-      <div
-        className="output-content"
-        dir={isArabic ? 'rtl' : 'ltr'}
-        style={{ textAlign: isArabic ? 'right' : 'left' }}
-      >
+      {languageChangedAfterGeneration && (
+        <div style={{
+          background: '#fef3c7',
+          border: '0.5px solid #d97706',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          marginTop: '8px',
+          marginBottom: '16px',
+          display: 'flex',
+          gap: '10px',
+          alignItems: 'flex-start',
+          fontSize: '13px',
+          color: '#92400e',
+        }}>
+          <RefreshCw size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+          <span>
+            To get your preparation in the selected language, just hit <strong>Generate</strong> again.
+          </span>
+        </div>
+      )}
+
+      <>
+          <div
+            className="output-content"
+            dir={isArabic ? 'rtl' : 'ltr'}
+            style={{ textAlign: isArabic ? 'right' : 'left' }}
+          >
         {isWritten ? (
           <>
             <label htmlFor="written-output-textarea" className="sr-only">Editable written feedback</label>
@@ -281,43 +304,41 @@ ${feedbackText}`,
             )}
           </div>
         )}
-      </div>
+          </div>
 
-      <div className="output-actions">
-        <button className="primary" onClick={copyToClipboard}>
-          <Copy style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Copy to Clipboard
-        </button>
-        {isWritten && (
-          <button className="primary" onClick={() => onReset && onReset('regenerate')} style={{ marginLeft: '8px' }}>
-            <RotateCcw style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Regenerate
-          </button>
-        )}
-      </div>
-
-      {advancedMode && data.framework !== 'self' && (
-        <>
-          <div className="scarf-button-section">
-            <button 
-              type="button"
-              className="secondary" 
-              onClick={scarfAnalyseFeedback}
-              disabled={isAnalyzing || isDemoMode}
-              aria-label="Analyze feedback with SCARF model"
-              aria-busy={isAnalyzing}
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px', animation: 'spin 1s linear infinite' }} />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Brain style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
-                  Analyse with SCARF Model
-                </>
-              )}
+          <div className="output-actions output-actions--stack">
+            <button className="primary output-action-btn" onClick={copyToClipboard}>
+              <Copy style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Copy to Clipboard
             </button>
           </div>
+
+          {advancedMode && data.framework !== 'self' && (
+            <div className="output-secondary-actions">
+              <button
+                type="button"
+                className="secondary output-secondary-btn"
+                onClick={scarfAnalyseFeedback}
+                disabled={isAnalyzing || isDemoMode}
+                aria-label="Analyze feedback with SCARF model"
+                aria-busy={isAnalyzing}
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px', animation: 'spin 1s linear infinite' }} />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Brain style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
+                    Analyse with SCARF Model
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {advancedMode && data.framework !== 'self' && (
+        <>
 
           {/* aria-live region announces loading and error states to screen readers */}
           <div aria-live="polite" aria-atomic="true" className="sr-only">
@@ -388,90 +409,91 @@ ${feedbackText}`,
         </>
       )}
 
-      {!isManagerReport && !isWritten && (
-        <div className="tips-box">
-          <h4><MessageSquare style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Tips for the Conversation</h4>
-          <ul>
-            <li>Practice the opening line out loud</li>
-            <li>Listen more than you talk</li>
-            <li>Ask clarifying questions</li>
-            <li>Focus on behavior, not person</li>
-            <li>End with clear next steps</li>
-          </ul>
-        </div>
-      )}
-
-      {!isWritten && advancedMode && (
-        isDemoMode ? (
-          <div className="chat-section" aria-label="Follow-up chat disabled in demo">
-            <h3>🗨️ Refine or Practice</h3>
-            <div className="chat-disabled-message">
-              <p><Lock style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Add your API key to use the follow-up chat</p>
+          {!isManagerReport && !isWritten && (
+            <div className="tips-box">
+              <h4><MessageSquare style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Tips for the Conversation</h4>
+              <ul>
+                <li>Practice the opening line out loud</li>
+                <li>Listen more than you talk</li>
+                <li>Ask clarifying questions</li>
+                <li>Focus on behavior, not person</li>
+                <li>End with clear next steps</li>
+              </ul>
             </div>
-          </div>
-        ) : (
-          <div className="chat-section" aria-label="Follow-up conversation">
-            <h3>🗨️ Refine or Practice</h3>
+          )}
 
-            <div
-              className="chat-messages"
-              role="log"
-              aria-live="polite"
-              aria-label="Chat messages"
-            >
-              {chatHistory.map((msg, idx) => (
-                <div key={idx} className={`chat-bubble chat-bubble--${msg.role}`}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+          {!isWritten && advancedMode && (
+            isDemoMode ? (
+              <div className="chat-section" aria-label="Follow-up chat disabled in demo">
+                <h3>🗨️ Refine or Practice</h3>
+                <div className="chat-disabled-message">
+                  <p><Lock style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Add your API key to use the follow-up chat</p>
                 </div>
-              ))}
-              {chatLoading && (
-                <div className="chat-bubble chat-bubble--assistant chat-bubble--loading" aria-busy="true">
-                  Thinking…
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+              </div>
+            ) : (
+              <div className="chat-section" aria-label="Follow-up conversation">
+                <h3>🗨️ Refine or Practice</h3>
 
-            <form className="chat-input-row" onSubmit={handleSend}>
-              <label htmlFor="chat-input" className="sr-only">Follow-up message</label>
-              <textarea
-                id="chat-input"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                maxLength={2000}
-                placeholder="Ask a follow-up… e.g. 'What if they react defensively?' or 'Make it more direct'"
-                disabled={chatLoading}
-                className="chat-textarea"
-              />
-              <button
-                type="submit"
-                className="chat-send-btn"
-                aria-label="Send follow-up message"
-                disabled={chatLoading || !input.trim()}
-              >
-                {chatLoading ? (
-                  <>
-                    <Loader2
-                      style={{
-                        width: '16px',
-                        height: '16px',
-                        marginRight: '6px',
-                        display: 'inline',
-                        verticalAlign: 'middle',
-                        animation: 'spin 1s linear infinite',
-                      }}
-                    />
-                    Sending...
-                  </>
-                ) : (
-                  'Send'
-                )}
-              </button>
-            </form>
-          </div>
-        )
-      )}
+                <div
+                  className="chat-messages"
+                  role="log"
+                  aria-live="polite"
+                  aria-label="Chat messages"
+                >
+                  {chatHistory.map((msg, idx) => (
+                    <div key={idx} className={`chat-bubble chat-bubble--${msg.role}`}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                    </div>
+                  ))}
+                  {chatLoading && (
+                    <div className="chat-bubble chat-bubble--assistant chat-bubble--loading" aria-busy="true">
+                      Thinking…
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                <form className="chat-input-row" onSubmit={handleSend}>
+                  <label htmlFor="chat-input" className="sr-only">Follow-up message</label>
+                  <textarea
+                    id="chat-input"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    maxLength={2000}
+                    placeholder="Ask a follow-up… e.g. 'What if they react defensively?' or 'Make it more direct'"
+                    disabled={chatLoading}
+                    className="chat-textarea"
+                  />
+                  <button
+                    type="submit"
+                    className="chat-send-btn"
+                    aria-label="Send follow-up message"
+                    disabled={chatLoading || !input.trim()}
+                  >
+                    {chatLoading ? (
+                      <>
+                        <Loader2
+                          style={{
+                            width: '16px',
+                            height: '16px',
+                            marginRight: '6px',
+                            display: 'inline',
+                            verticalAlign: 'middle',
+                            animation: 'spin 1s linear infinite',
+                          }}
+                        />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send'
+                    )}
+                  </button>
+                </form>
+              </div>
+            )
+          )}
+      </>
     </div>
   )
 }
@@ -498,4 +520,5 @@ FeedbackOutput.propTypes = {
   advancedMode: PropTypes.bool,
   isDemoMode: PropTypes.bool,
   apiKey: PropTypes.string.isRequired,
+  languageChangedAfterGeneration: PropTypes.bool,
 }

@@ -157,6 +157,41 @@
   flex: 1;
 }
 
+.output-actions--stack {
+  flex-direction: column;
+}
+
+.output-action-btn {
+  min-height: 48px;
+  border-radius: 6px;
+}
+
+.output-secondary-actions {
+  display: flex;
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+.output-secondary-actions--split {
+  gap: 12px;
+}
+
+.output-secondary-btn {
+  flex: 1;
+  min-height: 48px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #d1d5db;
+}
+
+.output-secondary-btn:hover:not(:disabled) {
+  border-color: #1d4ed8;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
 .tips-box {
   background: #f8fafc;
   padding: 20px;
