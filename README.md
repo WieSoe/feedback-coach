@@ -1,6 +1,6 @@
 # Feedback Coach
 
-![Version](https://img.shields.io/badge/version-v2.1.0-blue)
+![Version](https://img.shields.io/badge/version-v3.0.0-blue)
 ![Live](https://img.shields.io/badge/live-vercel-brightgreen)
 ![License](https://img.shields.io/badge/license-CC%20BY--ND%204.0-lightgrey)
 
@@ -44,10 +44,12 @@ Try a demo first — no API key required. Once you're ready, add your API key to
 - **Demo Mode** — explore the app with example outputs before entering your API key
 - **Conversation Guide or Written Feedback** — choose your output format
 - **Advanced Mode** — unlock additional frameworks and tools for nuanced conversations
+- **SCARF Model Analysis** — analyse your generated feedback against the 5 SCARF dimensions (Advanced Mode only)
 - **"Defuse my words"** — highlights loaded language in red, suggests neutral alternatives based on NVC principles
 - **Feedback History** — last 10 sessions saved in browser, quickly access previous work
 - **Privacy Mode** — prevent sessions from being saved to history
 - **Output in 10 languages** — auto-detected from browser language
+- **Language change notice** — clear prompt to regenerate when output language is changed
 - **Follow-up chat** — refine and practice after generation
 - **Reset button** — start fresh without page reload
 

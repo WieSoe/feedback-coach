@@ -100,6 +100,7 @@ export default function App() {
   const [privacyMode, setPrivacyMode] = useState(loadPrivacyMode)
   const [advancedMode, setAdvancedMode] = useState(loadAdvancedMode)
   const [formInitialData, setFormInitialData] = useState(null)
+  const [languageChangedAfterGeneration, setLanguageChangedAfterGeneration] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
     const saved = localStorage.getItem(OUTPUT_LANGUAGE_STORAGE_KEY)
     return sanitizeOutputLanguage(saved || detectBrowserLanguage())
@@ -180,6 +181,7 @@ export default function App() {
       if (!confirmed) return
     }
 
+    setLanguageChangedAfterGeneration(false)
     setLoading(true)
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -273,6 +275,8 @@ export default function App() {
 
     const restoredLanguage = sanitizeOutputLanguage(entry.outputLanguage || selectedLanguage)
 
+    setLanguageChangedAfterGeneration(false)
+
     setSelectedLanguage(restoredLanguage)
     localStorage.setItem(OUTPUT_LANGUAGE_STORAGE_KEY, restoredLanguage)
 
@@ -322,6 +326,7 @@ export default function App() {
     setFeedbackData(null)
     setChatHistory([])
     setChatLoading(false)
+    setLanguageChangedAfterGeneration(false)
     setFormInitialData({ ...DEFAULT_FORM_DATA })
   }
 
@@ -329,6 +334,9 @@ export default function App() {
     const safeLanguage = sanitizeOutputLanguage(language)
     setSelectedLanguage(safeLanguage)
     localStorage.setItem(OUTPUT_LANGUAGE_STORAGE_KEY, safeLanguage)
+    if (feedbackData && safeLanguage !== selectedLanguage) {
+      setLanguageChangedAfterGeneration(true)
+    }
   }
 
   const handleOutputFormatChange = () => {
@@ -659,6 +667,8 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
               selectedLanguage={selectedLanguage}
               advancedMode={advancedMode}
               isDemoMode={demoMode}
+              apiKey={apiKey}
+              languageChangedAfterGeneration={languageChangedAfterGeneration}
             />
           )}
         </div>
