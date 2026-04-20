@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { PenLine, Zap, Sparkles, Loader2, MessageSquare } from 'lucide-react'
+import { PenLine, Zap, Sparkles, Loader2, MessageSquare, Info } from 'lucide-react'
 import '../styles/FeedbackForm.css'
 
 const FRAMEWORKS = [
@@ -363,20 +363,34 @@ export default function FeedbackForm({
             {(() => {
               const active = FRAMEWORKS.find((fw) => fw.id === formData.framework)
               return active ? (
-                <div className="framework-description" aria-live="polite">
-                  <strong>{active.name}</strong><br />
-                  {active.description}
-                  {active.author && <span className="framework-author"> - {active.author}</span>}
-                </div>
+                !isSelf ? (
+                  <div className="framework-description" aria-live="polite">
+                    <strong>{active.name}</strong><br />
+                    {active.description}
+                    {active.author && <span className="framework-author"> - {active.author}</span>}
+                  </div>
+                ) : null
               ) : null
             })()}
           </div>
         )}
 
         {isSelf ? (
-          <div className="self-intro-box">
-            Before talking to someone, let's understand what's going on for you first.
-            There are no right or wrong answers here.
+          <div className="framework-description self-clarification-info-box" role="note" aria-label="Self-clarification guidance">
+            <div className="self-clarification-info-content">
+              <Info size={18} aria-hidden="true" />
+              <div>
+                <strong>Self-Clarification</strong><br />
+                <p className="self-clarification-info-text">
+                  Before giving feedback, understand your own reaction first.
+                  Why does this bother you? What need of yours is unmet?
+                  Once you know, you can negotiate from interests — not positions.
+                </p>
+                <p className="framework-author self-clarification-attribution">
+                  Based on NVC by Marshall B. Rosenberg &amp; Harvard Negotiation Method
+                </p>
+              </div>
+            </div>
           </div>
         ) : (
           <>
@@ -426,15 +440,6 @@ export default function FeedbackForm({
             placeholder={isSelf ? 'e.g., A colleague interrupted me, I felt dismissed in a meeting...' : 'e.g., Code quality, Communication, Deadline missed'}
             autoComplete="off"
           />
-          {isSelf && (
-            <div className="self-negotiation-hint">
-              Once you know your unmet need, you can negotiate from interests — not positions.
-              Instead of <em>&ldquo;I want you to stop interrupting me&rdquo;</em> (position), you can say{' '}
-              <em>&ldquo;I need to feel heard in meetings&rdquo;</em> (interest).
-              Interests are negotiable — positions create conflict.<br />
-              <span className="self-negotiation-hint-source">Based on the Harvard Negotiation Method by Fisher &amp; Ury.</span>
-            </div>
-          )}
         </div>
 
         <div className="form-group">
