@@ -33,6 +33,7 @@ export default function FeedbackOutput({
   const [editableText, setEditableText] = useState(data.generatedFeedback)
   const [scarfAnalysis, setScarfAnalysis] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [scarfError, setScarfError] = useState(null)
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -112,16 +113,25 @@ export default function FeedbackOutput({
 
   const scarfAnalyseFeedback = async () => {
     if (!apiKey) {
-      alert('API key required for SCARF analysis')
+      setScarfError('API key required for SCARF analysis')
       return
     }
 
     setIsAnalyzing(true)
+    setScarfError(null)
+    setScarfAnalysis(null)
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 15000)
+
     try {
-      const feedbackText = isWritten ? editableText : data.generatedFeedback
+      const rawText = isWritten ? editableText : data.generatedFeedback
+      // Truncate to avoid sending excessively large prompts
+      const feedbackText = rawText.slice(0, 4000)
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
@@ -156,24 +166,44 @@ ${feedbackText}`,
         }),
       })
 
+      clearTimeout(timeoutId)
+
       if (!response.ok) {
         throw new Error(`API Error ${response.status}`)
       }
 
       const result = await response.json()
-      const analysisText = result.content[0].text
+      const analysisText = result.content?.[0]?.text
+
+      if (!analysisText) {
+        throw new Error('Empty response from API')
+      }
 
       // Parse JSON from the response
       const jsonMatch = analysisText.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        const analysis = JSON.parse(jsonMatch[0])
-        setScarfAnalysis(analysis)
-      } else {
-        alert('Could not parse SCARF analysis results')
+      if (!jsonMatch) {
+        throw new Error('Could not parse SCARF analysis results')
       }
+
+      const analysis = JSON.parse(jsonMatch[0])
+
+      // Validate all 5 required dimensions exist with expected shape
+      const required = ['Status', 'Certainty', 'Autonomy', 'Relatedness', 'Fairness']
+      const valid = required.every(
+        (d) => analysis[d] && typeof analysis[d].score === 'string' && typeof analysis[d].text === 'string'
+      )
+      if (!valid) {
+        throw new Error('Incomplete SCARF analysis — not all dimensions were returned')
+      }
+
+      setScarfAnalysis(analysis)
     } catch (error) {
-      console.error('SCARF analysis error:', error)
-      alert('Error analyzing feedback with SCARF model')
+      clearTimeout(timeoutId)
+      if (error.name === 'AbortError') {
+        setScarfError('Analysis timed out. Please try again.')
+      } else {
+        setScarfError(error.message || 'Error analyzing feedback with SCARF model')
+      }
     } finally {
       setIsAnalyzing(false)
     }
@@ -273,6 +303,7 @@ ${feedbackText}`,
               onClick={scarfAnalyseFeedback}
               disabled={isAnalyzing || isDemoMode}
               aria-label="Analyze feedback with SCARF model"
+              aria-busy={isAnalyzing}
             >
               {isAnalyzing ? (
                 <>
@@ -288,6 +319,19 @@ ${feedbackText}`,
             </button>
           </div>
 
+          {/* aria-live region announces loading and error states to screen readers */}
+          <div aria-live="polite" aria-atomic="true" className="sr-only">
+            {isAnalyzing ? 'Analyzing feedback with SCARF model…' : ''}
+            {scarfError ? `SCARF analysis error: ${scarfError}` : ''}
+          </div>
+
+          {scarfError && (
+            <div className="scarf-error-box" role="alert">
+              <AlertTriangle size={15} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <span>{scarfError}</span>
+            </div>
+          )}
+
           {scarfAnalysis && (
             <>
               <div className="scarf-info-box">
@@ -295,23 +339,34 @@ ${feedbackText}`,
                 The SCARF Model identifies five social triggers that influence how people respond to feedback: Status, Certainty, Autonomy, Relatedness, and Fairness. Understanding these helps you deliver feedback that feels safe rather than threatening.
                 <span className="scarf-info-author">- Developed by David Rock, NeuroLeadership Institute</span>
               </div>
-              <div className="scarf-results-card">
+              <div className="scarf-results-card" role="region" aria-label="SCARF Model analysis results">
                 <h4>SCARF Model Analysis</h4>
                 <div className="scarf-dimensions">
                   {['Status', 'Certainty', 'Autonomy', 'Relatedness', 'Fairness'].map((dimension) => {
                     const analysis = scarfAnalysis[dimension]
                     if (!analysis) return null
+
+                    const scoreLabels = {
+                      green: 'well handled',
+                      yellow: 'potential concern',
+                      red: 'significant concern',
+                    }
                     
                     const scoreColor = {
-                      'green': '#16a34a',
-                      'yellow': '#ca8a04',
-                      'red': '#dc2626',
+                      green: '#16a34a',
+                      // #b45309 (amber-700) replaces #ca8a04 — achieves ~4.6:1 on white, passing WCAG AA
+                      yellow: '#b45309',
+                      red: '#dc2626',
                     }[analysis.score] || '#666'
+
+                    const scoreLabel = scoreLabels[analysis.score] || analysis.score
 
                     return (
                       <div key={dimension} className="scarf-row">
                         <Circle
                           size={16}
+                          aria-label={`${dimension}: ${scoreLabel}`}
+                          role="img"
                           style={{
                             fill: scoreColor,
                             color: scoreColor,
