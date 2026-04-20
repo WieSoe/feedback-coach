@@ -147,10 +147,17 @@
   font-weight: 500;
 }
 
+.output-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
 .output-actions {
   display: flex;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .output-actions button {
@@ -169,7 +176,7 @@
 .output-secondary-actions {
   display: flex;
   margin-top: 0;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .output-secondary-actions--split {

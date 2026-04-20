@@ -306,36 +306,38 @@ ${feedbackText}`,
         )}
           </div>
 
-          <div className="output-actions output-actions--stack">
-            <button className="primary output-action-btn" onClick={copyToClipboard}>
-              <Copy style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Copy to Clipboard
-            </button>
-          </div>
-
-          {advancedMode && data.framework !== 'self' && (
-            <div className="output-secondary-actions">
-              <button
-                type="button"
-                className="secondary output-secondary-btn"
-                onClick={scarfAnalyseFeedback}
-                disabled={isAnalyzing || isDemoMode}
-                aria-label="Analyze feedback with SCARF model"
-                aria-busy={isAnalyzing}
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px', animation: 'spin 1s linear infinite' }} />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Brain style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
-                    Analyse with SCARF Model
-                  </>
-                )}
+          <div className="output-actions-group">
+            <div className="output-actions output-actions--stack">
+              <button className="primary output-action-btn" onClick={copyToClipboard}>
+                <Copy style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Copy to Clipboard
               </button>
             </div>
-          )}
+
+            {advancedMode && data.framework !== 'self' && (
+              <div className="output-secondary-actions">
+                <button
+                  type="button"
+                  className="secondary output-secondary-btn"
+                  onClick={scarfAnalyseFeedback}
+                  disabled={isAnalyzing || isDemoMode}
+                  aria-label="Analyze feedback with SCARF model"
+                  aria-busy={isAnalyzing}
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px', animation: 'spin 1s linear infinite' }} />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Brain style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
+                      Analyse with SCARF Model
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
 
           {advancedMode && data.framework !== 'self' && (
         <>
