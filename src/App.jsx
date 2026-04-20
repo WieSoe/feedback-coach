@@ -659,6 +659,7 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
               selectedLanguage={selectedLanguage}
               advancedMode={advancedMode}
               isDemoMode={demoMode}
+              apiKey={apiKey}
             />
           )}
         </div>

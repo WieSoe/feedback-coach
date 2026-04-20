@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2, AlertTriangle } from 'lucide-react'
+import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2, AlertTriangle, Brain, Circle, Lock } from 'lucide-react'
 import '../styles/FeedbackOutput.css'
 
 const FRAMEWORK_LABELS = {
@@ -22,6 +22,7 @@ export default function FeedbackOutput({
   selectedLanguage,
   advancedMode = false,
   isDemoMode = false,
+  apiKey,
 }) {
   const isSelf = data.framework === 'self'
   const isManagerReport = data.situationType === 'Feedback about someone to their Manager'
@@ -30,6 +31,8 @@ export default function FeedbackOutput({
   const isWritten = data.outputFormat === 'written'
   const [input, setInput] = useState('')
   const [editableText, setEditableText] = useState(data.generatedFeedback)
+  const [scarfAnalysis, setScarfAnalysis] = useState(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -104,6 +107,75 @@ export default function FeedbackOutput({
       if (!input.trim() || chatLoading) return
       onFollowUp(input.trim())
       setInput('')
+    }
+  }
+
+  const scarfAnalyseFeedback = async () => {
+    if (!apiKey) {
+      alert('API key required for SCARF analysis')
+      return
+    }
+
+    setIsAnalyzing(true)
+    try {
+      const feedbackText = isWritten ? editableText : data.generatedFeedback
+
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 500,
+          messages: [
+            {
+              role: 'user',
+              content: `Analyze the following feedback against the SCARF Model. For each of the 5 dimensions (Status, Certainty, Autonomy, Relatedness, Fairness), provide:
+1. A score: "green" if the feedback handles this dimension well, "yellow" if there are potential issues, "red" if there are significant concerns
+2. A short one-sentence explanation
+
+When analyzing the feedback, treat quoted speech (text in quotation marks) as examples or citations, not as the author's own words or intentions. Only analyze the framing, tone, and approach of the feedback itself.
+
+Return ONLY a valid JSON object with this exact structure:
+{
+  "Status": { "score": "green|yellow|red", "text": "explanation" },
+  "Certainty": { "score": "green|yellow|red", "text": "explanation" },
+  "Autonomy": { "score": "green|yellow|red", "text": "explanation" },
+  "Relatedness": { "score": "green|yellow|red", "text": "explanation" },
+  "Fairness": { "score": "green|yellow|red", "text": "explanation" }
+}
+
+Feedback to analyze:
+${feedbackText}`,
+            },
+          ],
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`API Error ${response.status}`)
+      }
+
+      const result = await response.json()
+      const analysisText = result.content[0].text
+
+      // Parse JSON from the response
+      const jsonMatch = analysisText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const analysis = JSON.parse(jsonMatch[0])
+        setScarfAnalysis(analysis)
+      } else {
+        alert('Could not parse SCARF analysis results')
+      }
+    } catch (error) {
+      console.error('SCARF analysis error:', error)
+      alert('Error analyzing feedback with SCARF model')
+    } finally {
+      setIsAnalyzing(false)
     }
   }
 
@@ -192,6 +264,75 @@ export default function FeedbackOutput({
         )}
       </div>
 
+      {advancedMode && data.framework !== 'self' && (
+        <>
+          <div className="scarf-button-section">
+            <button 
+              type="button"
+              className="secondary" 
+              onClick={scarfAnalyseFeedback}
+              disabled={isAnalyzing || isDemoMode}
+              aria-label="Analyze feedback with SCARF model"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px', animation: 'spin 1s linear infinite' }} />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Brain style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} />
+                  Analyse with SCARF Model
+                </>
+              )}
+            </button>
+          </div>
+
+          {scarfAnalysis && (
+            <>
+              <div className="scarf-info-box">
+                <strong>SCARF Model</strong><br />
+                The SCARF Model identifies five social triggers that influence how people respond to feedback: Status, Certainty, Autonomy, Relatedness, and Fairness. Understanding these helps you deliver feedback that feels safe rather than threatening.
+                <span className="scarf-info-author">- Developed by David Rock, NeuroLeadership Institute</span>
+              </div>
+              <div className="scarf-results-card">
+                <h4>SCARF Model Analysis</h4>
+                <div className="scarf-dimensions">
+                  {['Status', 'Certainty', 'Autonomy', 'Relatedness', 'Fairness'].map((dimension) => {
+                    const analysis = scarfAnalysis[dimension]
+                    if (!analysis) return null
+                    
+                    const scoreColor = {
+                      'green': '#16a34a',
+                      'yellow': '#ca8a04',
+                      'red': '#dc2626',
+                    }[analysis.score] || '#666'
+
+                    return (
+                      <div key={dimension} className="scarf-row">
+                        <Circle
+                          size={16}
+                          style={{
+                            fill: scoreColor,
+                            color: scoreColor,
+                            flexShrink: 0,
+                            marginRight: '12px',
+                          }}
+                        />
+                        <div className="scarf-content">
+                          <strong>{dimension}</strong>
+                          <span>{analysis.text}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+        </>
+      )}
+
       {!isManagerReport && !isWritten && (
         <div className="tips-box">
           <h4><MessageSquare style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Tips for the Conversation</h4>
@@ -210,7 +351,7 @@ export default function FeedbackOutput({
           <div className="chat-section" aria-label="Follow-up chat disabled in demo">
             <h3>🗨️ Refine or Practice</h3>
             <div className="chat-disabled-message">
-              <p>Add your API key to use the follow-up chat</p>
+              <p><Lock style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Add your API key to use the follow-up chat</p>
             </div>
           </div>
         ) : (
@@ -301,4 +442,5 @@ FeedbackOutput.propTypes = {
   selectedLanguage: PropTypes.string.isRequired,
   advancedMode: PropTypes.bool,
   isDemoMode: PropTypes.bool,
+  apiKey: PropTypes.string.isRequired,
 }
