@@ -104,13 +104,19 @@ export default function FeedbackForm({
   const visibleFrameworks = advancedMode
     ? FRAMEWORKS
     : FRAMEWORKS.filter((fw) => BASIC_FRAMEWORK_IDS.includes(fw.id))
-  const BASIC_SITUATION_TYPES = SITUATION_TYPES.filter((t) => t !== 'Feedback about someone to their Manager')
 
   useEffect(() => {
     if (isManagerAboutSomeone) {
+      if (formData.framework !== 'sbi') {
+        setFormData((prev) => ({ ...prev, framework: 'sbi' }))
+        onFrameworkChange?.('sbi')
+      }
+
       setShowDefuseRecommendation(true)
       setDefuseSkipped(false)
+      setDefuseCompleted(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isManagerAboutSomeone])
 
   useEffect(() => {
@@ -127,10 +133,6 @@ export default function FeedbackForm({
       if (!BASIC_FRAMEWORK_IDS.includes(formData.framework)) {
         setFormData((prev) => ({ ...prev, framework: 'sbi' }))
         onFrameworkChange?.('sbi')
-      }
-      // If manager situation selected, reset to first basic type
-      if (formData.situationType === 'Feedback about someone to their Manager') {
-        setFormData((prev) => ({ ...prev, situationType: 'Feedback to my Report' }))
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -386,7 +388,7 @@ export default function FeedbackForm({
                 value={formData.situationType}
                 onChange={handleChange}
               >
-                {(advancedMode ? SITUATION_TYPES : BASIC_SITUATION_TYPES).map((type) => (
+                {SITUATION_TYPES.map((type) => (
                   <option key={type} value={type}>
                     {type}
                   </option>
@@ -452,7 +454,7 @@ export default function FeedbackForm({
             }
           />
           
-          {isManagerAboutSomeone && advancedMode && (
+          {isManagerAboutSomeone && (
             <>
               <button
                 type="button"
@@ -558,7 +560,7 @@ export default function FeedbackForm({
           <p className="char-counter">{formData.description.length} / 2000 characters</p>
         </div>
 
-        {isManagerAboutSomeone && advancedMode && showDefuseRecommendation && (
+        {isManagerAboutSomeone && showDefuseRecommendation && (
           <div className="defuse-recommendation-note">
             <p>
               We recommend defusing your language before generating. This helps ensure your feedback is factual and neutral.
