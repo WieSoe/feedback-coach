@@ -21,8 +21,8 @@ body {
     Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #ffffff;
-  color: #111827;
+  background: var(--color-background);
+  color: var(--color-text-primary);
   min-height: 100vh;
   padding: 40px 24px;
 }
@@ -34,7 +34,7 @@ body {
 
 button {
   cursor: pointer;
-  border: 0.5px solid #e5e7eb;
+  border: 0.5px solid var(--color-border);
   padding: 10px 20px;
   border-radius: 6px;
   font-size: 14px;
@@ -49,12 +49,12 @@ button:hover {
 
 input, textarea, select {
   padding: 12px;
-  border: 0.5px solid #e5e7eb;
+  border: 0.5px solid var(--color-border);
   border-radius: 6px;
   font-size: 16px; /* prevents iOS auto-zoom */
   font-family: inherit;
-  color: #111827;
-  background: #ffffff;
+  color: var(--color-text-primary);
+  background: var(--color-background);
   min-height: 44px; /* touch-friendly */
   width: 100%;
 }
@@ -70,6 +70,6 @@ select {
 
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: #185FA5;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.15);
 }
