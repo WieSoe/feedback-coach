@@ -1,13 +1,13 @@
 .feedback-output h2 {
   margin-bottom: 20px;
-  color: #111827;
+  color: var(--color-text-primary);
 }
 
 .output-reset-btn {
   align-self: flex-start;
-  border: 0.5px solid #cbd5e1;
-  background: #ffffff;
-  color: #475569;
+  border: 0.5px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-text-secondary);
   font-size: 12px;
   font-weight: 600;
   min-height: 32px;
@@ -17,33 +17,33 @@
 }
 
 .output-reset-btn:hover {
-  border-color: #94a3b8;
-  color: #334155;
+  border-color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
 }
 
 .output-reset-btn:focus-visible {
-  outline: 2px solid #185FA5;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  border-color: #185FA5;
+  border-color: var(--color-primary);
 }
 
 .output-meta {
-  background: #f8fafc;
+  background: var(--color-surface);
   padding: 16px;
   border-radius: 6px;
   margin-bottom: 24px;
-  border-left: 3px solid #185FA5;
+  border-left: 3px solid var(--color-primary);
 }
 
 .output-meta p {
   margin: 6px 0;
-  color: #374151;
+  color: var(--color-text-body);
   font-size: 14px;
 }
 
 .output-meta strong {
-  color: #185FA5;
+  color: var(--color-primary);
 }
 
 .output-content {
@@ -52,7 +52,7 @@
 }
 
 .markdown-output {
-  color: #111827;
+  color: var(--color-text-primary);
   font-size: 15px;
 }
 
@@ -60,7 +60,7 @@
 .markdown-output h2,
 .markdown-output h3 {
   font-weight: 500;
-  color: #185FA5;
+  color: var(--color-primary);
   margin-top: 16px;
   margin-bottom: 8px;
 }
@@ -89,12 +89,12 @@
 
 .markdown-output strong {
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--color-text-primary);
 }
 
 .markdown-output hr {
   border: none;
-  border-top: 0.5px solid #e5e7eb;
+  border-top: 0.5px solid var(--color-border);
   margin: 16px 0;
 }
 
@@ -138,12 +138,12 @@
 .markdown-output th,
 .markdown-output td {
   padding: 8px 12px;
-  border: 0.5px solid #e5e7eb;
+  border: 0.5px solid var(--color-border);
   text-align: left;
 }
 
 .markdown-output th {
-  background: #f8fafc;
+  background: var(--color-surface);
   font-weight: 500;
 }
 
@@ -190,20 +190,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid #d1d5db;
+  border: 1.5px solid var(--color-border);
 }
 
 .output-secondary-btn:hover:not(:disabled) {
-  border-color: #1d4ed8;
-  color: #1d4ed8;
-  background: #eff6ff;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-info-bg);
 }
 
 .tips-box {
-  background: #f8fafc;
+  background: var(--color-surface);
   padding: 20px;
   border-radius: 6px;
-  border-left: 3px solid #185FA5;
+  border-left: 3px solid var(--color-primary);
 }
 
 .tips-box h4 {
@@ -232,24 +232,24 @@
 /* ── Follow-up chat ── */
 .chat-section {
   margin-top: 24px;
-  border-top: 0.5px solid #e5e7eb;
+  border-top: 0.5px solid var(--color-border);
   padding-top: 20px;
 }
 
 .chat-section h3 {
   font-size: 15px;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 16px;
 }
 
 .chat-disabled-message {
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 20px;
   text-align: center;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-size: 14px;
   margin-bottom: 16px;
 }
@@ -280,20 +280,20 @@
 
 .chat-bubble--user {
   align-self: flex-end;
-  background: #185FA5;
+  background: var(--color-primary);
   color: #ffffff;
   border-radius: 12px 12px 0 12px;
 }
 
 .chat-bubble--assistant {
   align-self: flex-start;
-  background: #f1f5f9;
-  color: #111827;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   border-radius: 12px 12px 12px 0;
 }
 
 .chat-bubble--loading {
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-style: italic;
 }
 
@@ -315,7 +315,7 @@
 .chat-send-btn {
   padding: 0 20px;
   min-height: 44px;
-  background: #185FA5;
+  background: var(--color-primary);
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -328,7 +328,7 @@
 }
 
 .chat-send-btn:hover:not(:disabled) {
-  background: #145291;
+  background: var(--color-primary-hover);
 }
 
 .chat-send-btn:disabled {
@@ -343,12 +343,12 @@
   resize: none;
   overflow: hidden;
   padding: 12px 16px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 15px;
   line-height: 1.6;
-  color: #111827;
-  background: #ffffff;
+  color: var(--color-text-primary);
+  background: var(--color-background);
   font-family: inherit;
   box-sizing: border-box;
   transition: border-color 0.15s;
@@ -356,7 +356,7 @@
 
 .written-output-textarea:focus {
   outline: none;
-  border-color: #185FA5;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.1);
 }
 
@@ -375,8 +375,8 @@
 }
 
 .scarf-results-card {
-  background: #f8fafc;
-  border: 0.5px solid #e5e7eb;
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-border);
   border-radius: 6px;
   padding: 20px;
   margin-bottom: 24px;
@@ -385,7 +385,7 @@
 .scarf-results-card h4 {
   margin-top: 0;
   margin-bottom: 16px;
-  color: #111827;
+  color: var(--color-text-primary);
   font-size: 15px;
   font-weight: 600;
 }
@@ -401,9 +401,9 @@
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
-  background: #ffffff;
+  background: var(--color-background);
   border-radius: 4px;
-  border: 0.5px solid #e5e7eb;
+  border: 0.5px solid var(--color-border);
 }
 
 .scarf-content {
@@ -414,13 +414,13 @@
 }
 
 .scarf-content strong {
-  color: #111827;
+  color: var(--color-text-primary);
   font-weight: 600;
   font-size: 14px;
 }
 
 .scarf-content span {
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -440,12 +440,12 @@
 }
 
 .scarf-info-box {
-  background: #E6F1FB;
-  border-left: 3px solid #185FA5;
+  background: var(--color-info-bg);
+  border-left: 3px solid var(--color-primary);
   padding: 12px;
   border-radius: 0 4px 4px 0;
   font-size: 14px;
-  color: #0C447C;
+  color: var(--color-primary-dark);
   line-height: 1.5;
   margin-bottom: 16px;
 }
@@ -460,7 +460,7 @@
   display: block;
   margin-top: 6px;
   font-size: 13px;
-  color: #4b5563;
+  color: var(--color-text-secondary);
 }
 
 @keyframes spin {

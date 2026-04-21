@@ -15,7 +15,6 @@ const HISTORY_STORAGE_KEY = 'feedback_history'
 const OUTPUT_LANGUAGE_STORAGE_KEY = 'feedback_output_language'
 const API_KEY_STORAGE_KEY = 'anthropic_api_key'
 const PRIVACY_MODE_STORAGE_KEY = 'privacy_mode_enabled'
-const ADVANCED_MODE_STORAGE_KEY = 'feedback_coach_advanced_mode'
 
 const LANGUAGE_MAP = {
   de: 'Deutsch',
@@ -76,7 +75,6 @@ const detectBrowserLanguage = () => {
 const loadApiKey = () => localStorage.getItem(API_KEY_STORAGE_KEY) || ''
 
 const loadPrivacyMode = () => localStorage.getItem(PRIVACY_MODE_STORAGE_KEY) === 'true'
-const loadAdvancedMode = () => localStorage.getItem(ADVANCED_MODE_STORAGE_KEY) === 'true'
 
 const DEFAULT_FORM_DATA = {
   framework: 'sbi',
@@ -98,7 +96,7 @@ export default function App() {
   const [feedbackHistory, setFeedbackHistory] = useState(loadHistory)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [privacyMode, setPrivacyMode] = useState(loadPrivacyMode)
-  const [advancedMode, setAdvancedMode] = useState(loadAdvancedMode)
+  const [advancedMode, setAdvancedMode] = useState(false)
   const [formInitialData, setFormInitialData] = useState(null)
   const [languageChangedAfterGeneration, setLanguageChangedAfterGeneration] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
@@ -646,7 +644,6 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
               advancedMode={advancedMode}
               onAdvancedModeChange={(val) => {
                 setAdvancedMode(val)
-                localStorage.setItem(ADVANCED_MODE_STORAGE_KEY, String(val))
               }}
               initialData={formInitialData}
               selectedLanguage={selectedLanguage}

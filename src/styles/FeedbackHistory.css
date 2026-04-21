@@ -24,7 +24,7 @@
   width: auto;
   background: none;
   border: none;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 500;
   padding: 0;
@@ -44,7 +44,7 @@
 }
 
 .history-toggle:focus-visible {
-  outline: 2px solid #185FA5;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   text-decoration: underline;
 }
@@ -61,7 +61,7 @@
 }
 
 .privacy-toggle:focus-visible {
-  outline: 2px solid #185FA5;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -73,7 +73,7 @@
 .privacy-mode-hint {
   margin-top: 8px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   line-height: 1.5;
 }
 
@@ -90,15 +90,15 @@
   align-items: flex-start;
   justify-content: space-between;
   text-align: left;
-  background: #ffffff;
-  border: 0.5px solid #e5e7eb;
+  background: var(--color-background);
+  border: 0.5px solid var(--color-border);
   border-radius: 8px;
   padding: 12px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .history-item:hover {
-  border-color: #cbd5e1;
+  border-color: var(--color-border);
   box-shadow: 0 4px 14px rgba(17, 24, 39, 0.08);
   transform: translateY(-1px);
 }
@@ -121,7 +121,7 @@
   text-overflow: ellipsis;
   border-radius: 999px;
   background: rgba(24, 95, 165, 0.12);
-  color: #185fa5;
+  color: var(--color-primary);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -133,23 +133,23 @@
 
 .history-recipient {
   font-size: 13px;
-  color: #111827;
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 
 .history-topic {
   font-size: 13px;
-  color: #374151;
+  color: var(--color-text-body);
 }
 
 .history-date {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 .history-delete {
   flex-shrink: 0;
-  color: #9ca3af;
+  color: var(--color-text-muted);
   font-size: 14px;
   font-weight: 700;
   padding: 2px 6px;
@@ -158,8 +158,8 @@
 
 .history-delete:hover,
 .history-delete:focus-visible {
-  color: #111827;
-  background: #f3f4f6;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
   outline: none;
 }
 
@@ -167,7 +167,7 @@
   margin-top: 12px;
   background: transparent;
   border: none;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-size: 13px;
   text-decoration: underline;
   padding: 0;
@@ -176,12 +176,12 @@
 .history-empty {
   margin-top: 12px;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 .history-intro-hint {
   margin-top: 8px;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   line-height: 1.5;
 }
