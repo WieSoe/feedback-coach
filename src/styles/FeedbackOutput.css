@@ -203,12 +203,13 @@
   background: var(--color-surface);
   padding: 20px;
   border-radius: 6px;
+  border: 0.5px solid var(--color-border);
   border-left: 3px solid var(--color-primary);
 }
 
 .tips-box h4 {
   margin-bottom: 12px;
-  color: #2c3e50;
+  color: var(--color-text-primary);
 }
 
 .tips-box ul {
@@ -218,13 +219,13 @@
 
 .tips-box li {
   padding: 8px 0;
-  color: #2c3e50;
+  color: var(--color-text-secondary);
   font-size: 14px;
 }
 
 .tips-box li:before {
   content: '→ ';
-  color: #3498db;
+  color: var(--color-primary);
   font-weight: bold;
   margin-right: 8px;
 }
