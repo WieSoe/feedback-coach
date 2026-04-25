@@ -161,6 +161,21 @@ export default function FeedbackForm({
     }))
   }
 
+  const handleOutputFormatToggle = (nextFormat) => {
+    if (formData.outputFormat === nextFormat) return
+
+    const nextFormData = {
+      ...formData,
+      outputFormat: nextFormat,
+    }
+
+    setFormData(nextFormData)
+    setDefuseSkipped(false)
+    setDefuseCompleted(false)
+    setNeutralized(null)
+    onOutputFormatChange?.(nextFormat, nextFormData)
+  }
+
   const handleNeutralizeClick = async () => {
     setNeutralizingLoading(true)
     setNeutralizeError(null)
@@ -298,13 +313,7 @@ export default function FeedbackForm({
               type="button"
               className={`output-format-pill${formData.outputFormat === 'conversation' ? ' output-format-pill--active' : ''}`}
               aria-pressed={formData.outputFormat === 'conversation'}
-              onClick={() => {
-                setFormData((prev) => ({ ...prev, outputFormat: 'conversation' }))
-                setDefuseSkipped(false)
-                setDefuseCompleted(false)
-                setNeutralized(null)
-                onOutputFormatChange?.('conversation')
-              }}
+              onClick={() => handleOutputFormatToggle('conversation')}
             >
               <span className="output-format-pill-main">
                 <MessageSquare size={16} className="output-format-pill-icon" />
@@ -315,13 +324,7 @@ export default function FeedbackForm({
               type="button"
               className={`output-format-pill${formData.outputFormat === 'written' ? ' output-format-pill--active' : ''}`}
               aria-pressed={formData.outputFormat === 'written'}
-              onClick={() => {
-                setFormData((prev) => ({ ...prev, outputFormat: 'written' }))
-                setDefuseSkipped(false)
-                setDefuseCompleted(false)
-                setNeutralized(null)
-                onOutputFormatChange?.('written')
-              }}
+              onClick={() => handleOutputFormatToggle('written')}
             >
               <span className="output-format-pill-main">
                 <PenLine size={16} className="output-format-pill-icon" />

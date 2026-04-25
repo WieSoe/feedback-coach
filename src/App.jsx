@@ -6,6 +6,7 @@ import FeedbackOutput from './components/FeedbackOutput'
 import FeedbackHistory from './components/FeedbackHistory'
 import ApiKeySetup from './components/ApiKeySetup'
 import { DEMO_EXAMPLES, DEMO_FORM_DEFAULT } from './data/demoData'
+import { NOTICE_CHANGE, getNoticeFlagsForChange } from './utils/noticePriority'
 import './App.css'
 
 // Add a ref to track if neutralize is in progress
@@ -99,11 +100,18 @@ export default function App() {
   const [advancedMode, setAdvancedMode] = useState(false)
   const [formInitialData, setFormInitialData] = useState(null)
   const [languageChangedAfterGeneration, setLanguageChangedAfterGeneration] = useState(false)
+  const [formatChangedAfterGeneration, setFormatChangedAfterGeneration] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
     const saved = localStorage.getItem(OUTPUT_LANGUAGE_STORAGE_KEY)
     return sanitizeOutputLanguage(saved || detectBrowserLanguage())
   })
   const isOnboarding = !apiKey && !demoMode
+
+  const applyNoticeChange = (changeType) => {
+    const nextFlags = getNoticeFlagsForChange(changeType)
+    setLanguageChangedAfterGeneration(nextFlags.languageChangedAfterGeneration)
+    setFormatChangedAfterGeneration(nextFlags.formatChangedAfterGeneration)
+  }
 
   const handleApiKeySubmit = (key) => {
     setApiKey(key)
@@ -160,6 +168,7 @@ export default function App() {
           outputFormat: formData.outputFormat || 'conversation',
         })
         setChatHistory([])
+        applyNoticeChange(NOTICE_CHANGE.NONE)
       }
       return
     }
@@ -169,17 +178,7 @@ export default function App() {
       return
     }
 
-    if (
-      feedbackData &&
-      feedbackData.outputFormat !== formData.outputFormat
-    ) {
-      const confirmed = window.confirm(
-        'Switching format will clear your current output. Continue?'
-      )
-      if (!confirmed) return
-    }
-
-    setLanguageChangedAfterGeneration(false)
+    applyNoticeChange(NOTICE_CHANGE.NONE)
     setLoading(true)
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -273,7 +272,7 @@ export default function App() {
 
     const restoredLanguage = sanitizeOutputLanguage(entry.outputLanguage || selectedLanguage)
 
-    setLanguageChangedAfterGeneration(false)
+    applyNoticeChange(NOTICE_CHANGE.NONE)
 
     setSelectedLanguage(restoredLanguage)
     localStorage.setItem(OUTPUT_LANGUAGE_STORAGE_KEY, restoredLanguage)
@@ -322,9 +321,10 @@ export default function App() {
       return
     }
     setFeedbackData(null)
+    setLoading(false)
     setChatHistory([])
     setChatLoading(false)
-    setLanguageChangedAfterGeneration(false)
+    applyNoticeChange(NOTICE_CHANGE.NONE)
     setFormInitialData({ ...DEFAULT_FORM_DATA })
   }
 
@@ -333,18 +333,47 @@ export default function App() {
     setSelectedLanguage(safeLanguage)
     localStorage.setItem(OUTPUT_LANGUAGE_STORAGE_KEY, safeLanguage)
     if (feedbackData && safeLanguage !== selectedLanguage) {
-      setLanguageChangedAfterGeneration(true)
+      applyNoticeChange(NOTICE_CHANGE.LANGUAGE)
     }
   }
 
-  const handleOutputFormatChange = () => {
-    setFeedbackData(null)
-    setChatHistory([])
+  const handleOutputFormatChange = (nextFormat, nextFormData) => {
+    if (nextFormat && nextFormData && formInitialData) {
+      setFormInitialData((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          ...nextFormData,
+          outputFormat: nextFormat,
+        }
+      })
+    }
+
+    if (!feedbackData || !nextFormat) {
+      applyNoticeChange(NOTICE_CHANGE.NONE)
+      return
+    }
+
+    const formatChanged = nextFormat !== feedbackData.outputFormat
+    if (formatChanged) {
+      setFeedbackData((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          outputFormat: nextFormat,
+          generatedFeedback: '',
+        }
+      })
+      setChatHistory([])
+      setChatLoading(false)
+    }
+    applyNoticeChange(formatChanged ? NOTICE_CHANGE.FORMAT : NOTICE_CHANGE.NONE)
   }
 
   const handleFrameworkChange = () => {
     setFeedbackData(null)
     setChatHistory([])
+    applyNoticeChange(NOTICE_CHANGE.NONE)
   }
 
   const handleNeutralize = async (description) => {
@@ -666,6 +695,7 @@ Please respond with ONLY valid JSON (no markdown, no extra text), exactly in thi
               isDemoMode={demoMode}
               apiKey={apiKey}
               languageChangedAfterGeneration={languageChangedAfterGeneration}
+              formatChangedAfterGeneration={formatChangedAfterGeneration}
             />
           )}
         </div>
