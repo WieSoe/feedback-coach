@@ -9,6 +9,12 @@ as a structured talk or as written feedback, ready to send.
 
 **[Try the live demo — no API key required](https://feedback-coach-beta.vercel.app)**
 
+## 🤖 Use as a Claude Project (no API key needed)
+
+You can use Feedback Coach directly in Claude.ai as a Project — no app, no API key required.
+
+👉 [See setup instructions](CLAUDE_PROJECT.md)
+
 ## What it does
 
 Feedback Coach helps engineers, managers, and leaders prepare 
