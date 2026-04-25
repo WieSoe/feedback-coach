@@ -24,12 +24,15 @@ export default function FeedbackOutput({
   isDemoMode = false,
   apiKey,
   languageChangedAfterGeneration = false,
+  formatChangedAfterGeneration = false,
 }) {
   const isSelf = data.framework === 'self'
   const isManagerReport = data.situationType === 'Feedback about someone to their Manager'
   const isArabic = selectedLanguage === 'العربية'
   const frameworkLabel = FRAMEWORK_LABELS[data.framework] ?? data.framework
   const isWritten = data.outputFormat === 'written'
+  const activeNotice = formatChangedAfterGeneration ? 'format' : (languageChangedAfterGeneration ? 'language' : null)
+  const hasGeneratedOutput = Boolean((data.generatedFeedback || '').trim())
   const [input, setInput] = useState('')
   const [editableText, setEditableText] = useState(data.generatedFeedback)
   const [scarfAnalysis, setScarfAnalysis] = useState(null)
@@ -212,36 +215,27 @@ ${feedbackText}`,
 
   return (
     <div className="feedback-output card">
-      <button
-        type="button"
-        className="output-reset-btn"
-        onClick={onReset}
-        aria-label="Start new feedback and clear current output"
-      >
-          <RotateCcw style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Start new feedback
-      </button>
+      <div className="output-reset-sticky">
+        <button
+          type="button"
+          className="output-reset-btn"
+          onClick={onReset}
+          aria-label="Start new feedback and clear current output"
+        >
+            <RotateCcw style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Start new feedback
+        </button>
+      </div>
       <h2><Lightbulb style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px', width: '24px', height: '24px', color: '#1a1a1a' }} /> Your Feedback Preparation</h2>
 
-      <div style={{
-        background: '#fef3c7',
-        border: '0.5px solid #d97706',
-        borderRadius: '8px',
-        padding: '12px 16px',
-        marginBottom: '16px',
-        display: 'flex',
-        gap: '10px',
-        alignItems: 'flex-start',
-        fontSize: '13px',
-        color: '#92400e',
-      }}>
-        <AlertTriangle size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+      <div className="output-banner output-banner--warning output-banner--disclaimer">
+        <AlertTriangle size={16} className="output-banner-icon" />
         <span>
           This is AI-generated. Always review before sending or using.
           It does not replace your own judgment and knowledge of the situation.
         </span>
       </div>
 
-      <div className="output-meta">
+      <div className={`output-meta${activeNotice ? ' output-meta--with-notice' : ''}`}>
         <p><strong>Framework:</strong> {frameworkLabel}</p>
         {isSelf ? (
           <p><strong>For:</strong> Myself</p>
@@ -251,27 +245,29 @@ ${feedbackText}`,
         <p><strong>Topic:</strong> {data.topic}</p>
       </div>
 
-      {languageChangedAfterGeneration && (
-        <div style={{
-          background: '#fef3c7',
-          border: '0.5px solid #d97706',
-          borderRadius: '8px',
-          padding: '12px 16px',
-          marginTop: '8px',
-          marginBottom: '16px',
-          display: 'flex',
-          gap: '10px',
-          alignItems: 'flex-start',
-          fontSize: '13px',
-          color: '#92400e',
-        }}>
-          <RefreshCw size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
-          <span>
-            To get your preparation in the selected language, just hit <strong>Generate</strong> again.
-          </span>
+      {activeNotice && (
+        <div className="output-notices">
+          {activeNotice === 'language' && (
+            <div className="output-banner output-banner--info">
+              <RefreshCw size={16} className="output-banner-icon" />
+              <span>
+                To get your preparation in the selected language, just press <strong>Generate</strong> again.
+              </span>
+            </div>
+          )}
+
+          {activeNotice === 'format' && (
+            <div className="output-banner output-banner--info">
+              <RefreshCw size={16} className="output-banner-icon" />
+              <span>
+                Format changed. Press <strong>Generate</strong> again to get your preparation in the new format.
+              </span>
+            </div>
+          )}
         </div>
       )}
 
+      {hasGeneratedOutput && (
       <>
           <div
             className="output-content"
@@ -496,6 +492,7 @@ ${feedbackText}`,
             )
           )}
       </>
+      )}
     </div>
   )
 }
@@ -523,4 +520,5 @@ FeedbackOutput.propTypes = {
   isDemoMode: PropTypes.bool,
   apiKey: PropTypes.string.isRequired,
   languageChangedAfterGeneration: PropTypes.bool,
+  formatChangedAfterGeneration: PropTypes.bool,
 }
