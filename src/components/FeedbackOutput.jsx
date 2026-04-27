@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2, AlertTriangle, Brain, Circle, Lock, RefreshCw } from 'lucide-react'
+import { Lightbulb, Copy, RotateCcw, MessageSquare, Loader2, AlertTriangle, Brain, Circle, Lock, RefreshCw, PenLine } from 'lucide-react'
 import '../styles/FeedbackOutput.css'
 
 const FRAMEWORK_LABELS = {
@@ -309,7 +309,7 @@ ${feedbackText}`,
               </button>
             </div>
 
-            {advancedMode && data.framework !== 'self' && (
+            {data.framework !== 'self' && (
               <div className="output-secondary-actions">
                 <button
                   type="button"
@@ -335,7 +335,7 @@ ${feedbackText}`,
             )}
           </div>
 
-          {advancedMode && data.framework !== 'self' && (
+          {data.framework !== 'self' && (
         <>
 
           {/* aria-live region announces loading and error states to screen readers */}
@@ -420,17 +420,31 @@ ${feedbackText}`,
             </div>
           )}
 
-          {!isWritten && advancedMode && (
+          {data.framework !== 'self' && (
             isDemoMode ? (
               <div className="chat-section" aria-label="Follow-up chat disabled in demo">
-                <h3>🗨️ Refine or Practice</h3>
+                <h3>
+                  {isWritten ? (
+                    <>
+                      <PenLine size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+                      Refine your message
+                    </>
+                  ) : '🗨️ Refine or Practice'}
+                </h3>
                 <div className="chat-disabled-message">
                   <p><Lock style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', width: '16px', height: '16px' }} /> Add your API key to use the follow-up chat</p>
                 </div>
               </div>
             ) : (
               <div className="chat-section" aria-label="Follow-up conversation">
-                <h3>🗨️ Refine or Practice</h3>
+                <h3>
+                  {isWritten ? (
+                    <>
+                      <PenLine size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+                      Refine your message
+                    </>
+                  ) : '🗨️ Refine or Practice'}
+                </h3>
 
                 <div
                   className="chat-messages"
@@ -459,7 +473,7 @@ ${feedbackText}`,
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     maxLength={2000}
-                    placeholder="Ask a follow-up… e.g. 'What if they react defensively?' or 'Make it more direct'"
+                    placeholder={isWritten ? 'e.g. Make it less vulnerable, adjust the tone, shorten it...' : "Ask a follow-up… e.g. 'What if they react defensively?' or 'Make it more direct'"}
                     disabled={chatLoading}
                     className="chat-textarea"
                   />
